@@ -11,7 +11,8 @@
     "config",
     "src",
     "*.js",
-    "yarn.lock"
+    "yarn.lock",
+    "README.md"
   ],
   "dependencies": {
     "bluebird": "^2.9.27",
