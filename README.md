@@ -1,3 +1,7 @@
+***This repository is under active development, and should not be used at this moment***
+
+---
+
 # Mendix PhoneGap Build app base package
 
 This repository contains the core files needed to build a Phonegap package for your Mendix application.
