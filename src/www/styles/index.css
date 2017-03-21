@@ -1,0 +1,75 @@
+body {
+    margin: 0;
+    font-family: helvetica, arial, sans-serif;
+}
+.mx-main-container {
+    color: black;
+    font-family: helvetica, arial, sans-serif;
+    font-style: normal;
+    font-size: 20px;
+    font-weight: normal;
+    font-variant: normal;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: white;
+}
+.mx-alert {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 90%;
+    max-width: 400px;
+    margin: 30px auto;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    display: none;
+}
+.mx-alert-header {
+    padding: 15px;
+    border-bottom: 1px solid #e5e5e5;
+}
+.mx-alert-body {
+    padding: 15px;
+}
+.mx-alert-footer {
+    padding: 15px;
+    text-align: right;
+    border-top: 1px solid #e5e5e5;
+}
+.mx-alert h4 {
+    margin: 0;
+}
+.mx-alert p {
+    margin: 0 0 10px;
+}
+.mx-alert button {
+    display: inline-block;
+    padding: 6px 12px;
+    color: #333;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+#mx-loader-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+.mx-valign-table {
+    display: table;
+}
+.mx-valign-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+.mx-loader img {
+    display: block;
+    margin: 0 auto;
+}
+.mx-loader .mx-message {
+    text-align: center;
+    padding: 4px 0;
+}

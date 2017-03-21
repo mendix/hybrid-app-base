@@ -1,0 +1,12 @@
+{
+  "identifier": "com.mendix.myapp",
+  "version": "1.0.0",
+  "name": "My App",
+  "description": "Look at My App!",
+  "url": "http://example.org",
+  "enableOffline": false,
+  "requirePin": false,
+  "iosEnabled": true,
+  "wkWebViewEnabled": true,
+  "androidEnabled": true
+}

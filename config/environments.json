@@ -1,0 +1,7 @@
+{
+  "dev": {
+    "name": "My App",
+    "identifier": "com.myapp.dev",
+    "url": "http://localhost:3000"
+  }
+}
