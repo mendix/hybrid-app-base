@@ -1,6 +1,6 @@
 {
   "name": "mendix-hybrid-app-base",
-  "version": "v0.0.1",
+  "version": "v0.0.2",
   "description": "Mendix PhoneGap Build base package",
   "scripts": {},
   "main": "src/www/scripts/entry.js",
@@ -33,7 +33,7 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "gitlab@gitlab.srv.hq.mendix.net:mobile-experience/hybrid-app-base.git"
+    "url": "git@github.com:mendix/hybrid-app-base.git"
   },
   "license": "Apache-2.0",
   "author": {

@@ -68,7 +68,7 @@ module.exports = function(env) {
         },
         // The output of our build run
         output: {
-            path: "build",
+            path: path.resolve("build"),
             filename: "www/js/bundle.js"
         },
         // devtool: "cheap-module-eval-source-map",
