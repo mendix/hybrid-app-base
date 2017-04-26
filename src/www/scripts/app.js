@@ -259,6 +259,9 @@ module.exports = (function() {
                         var fileTransfer = new FileTransfer();
                         var tmpFile = cordova.file.tempDirectory  + "img" + (+ new Date()) + "-" + sequence++;
 
+                        // Workaround for issue introduced in 7.0.0, where url was of the wrong type (object instead of string)
+                        url = (typeof url === 'string') ? url : url["0"];
+
                         fileTransfer.download(url, tmpFile, function(fileEntry) {
                             fileEntry.file(function(file) {
                                 var reader = new FileReader();
