@@ -1,14 +1,10 @@
-***This repository is under active development, and should not be used at this moment***
-
----
-
-# Mendix PhoneGap Build app base package
+# Mendix PhoneGap / Cordova hybrid app base package
 
 This repository contains the core files needed to build a Phonegap package for your Mendix application.
 It consists of two main parts:
 
-- The core source files for the Hybrid app
+- The core source files for the hybrid app
 - The webpack configuration that is used during the build process
 
 You should not use this package directly.
-Instead, refer to the Mendix Phonegap Build app template for instructions on how to customize and build your Mendix Hybrid mobile app.
+Instead, refer to the [Mendix PhoneGap / Cordova hybrid app template](https://github.com/mendix/hybrid-app-template/) for instructions on how to customize and build your Mendix hybrid mobile app.

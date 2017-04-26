@@ -4,9 +4,19 @@
   "name": "My App",
   "description": "Look at My App!",
   "url": "http://example.org",
+  "hybridTabletProfile": "",
+  "hybridPhoneProfile": "",
   "enableOffline": false,
   "requirePin": false,
+  "androidEnabled": true,
   "iosEnabled": true,
   "wkWebViewEnabled": true,
-  "androidEnabled": true
+  "permissions": {
+    "calendar": true,
+    "camera": true,
+    "contacts": true,
+    "geoLocation": true,
+    "microphone": true,
+    "photoLibrary": true
+  }
 }

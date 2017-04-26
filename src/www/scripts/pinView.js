@@ -133,7 +133,7 @@ module.exports = (function() {
         pin.getAttemptsLeft().then(function(attemptsLeft) {
             errorNode.textContent = message;
             if (attemptsLeft === 1) {
-                errorNode.textContent += __(". You have one more attempt");
+                errorNode.textContent += ". " + __("You have one more attempt");
             }
         });
     };

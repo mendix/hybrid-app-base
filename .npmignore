@@ -1,6 +1,4 @@
 /.git
-/.idea
 /node_modules
 /dist
 /build
-debug.js

@@ -4,13 +4,10 @@ var Emitter = require('tiny-emitter');
 var BPromise = require("bluebird");
 var TokenStore = require("./Token-store");
 
-if (REQUIREPIN) {
-    var pin = require("./pin");
-    var pinView = require("./pinView");
-    var secureStore = require("./secure-store");
-} else {
-    var localStore = require("./local-store");
-}
+var pin = require("./pin");
+var pinView = require("./pinView");
+var secureStore = require("./secure-store");
+var localStore = require("./local-store");
 
 require("../styles/index.css");
 require("../styles/login.css");
@@ -130,7 +127,7 @@ module.exports = (function() {
         }
     };
 
-    var _startup = function(config, url, appUrl, enableOffline, requirePin) {
+    var _startup = function(config, url, appUrl, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin) {
         return new BPromise(function(resolve, reject) {
             window.dojoConfig = {
                 appbase: url,
@@ -138,7 +135,8 @@ module.exports = (function() {
                 baseUrl: url + "mxclientsystem/dojo/",
                 async: true,
                 cacheBust: config.cachebust,
-                offline: enableOffline,
+                hybridTabletProfile: hybridTabletProfile,
+                hybridPhoneProfile: hybridPhoneProfile,
                 server: {
                     timeout: 5000
                 },
@@ -234,6 +232,10 @@ module.exports = (function() {
                     removeSelf();
                 }
             };
+
+            if (hybridPhoneProfile === "" && hybridTabletProfile === "") {
+                window.dojoConfig.offline = enableOffline;
+            }
 
             if (cordova.platformId === "android") {
                 window.dojoConfig.ui.openUrlFn = function(url, fileName, windowName) {
@@ -598,7 +600,7 @@ module.exports = (function() {
         };
     };
 
-    var initialize = function(url, enableOffline, requirePin) {
+    var initialize = function(url, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin) {
         try {
             enableOffline = !!enableOffline;
 
@@ -636,7 +638,7 @@ module.exports = (function() {
         function syncAndStartup() {
             synchronizeResources(appUrl, shouldDownloadFn)
                 .spread(function(config, resourcesUrl) {
-                    return startup(config, resourcesUrl, appUrl, enableOffline, requirePin);
+                    return startup(config, resourcesUrl, appUrl, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin);
                 })
                 .catch(handleError);
         }
