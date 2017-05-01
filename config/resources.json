@@ -15,6 +15,8 @@
     {"tag": "icon", "filename": "res/icons/ios/icon-76-2x.png", "platform": "ios", "width": "152", "height": "152"},
     {"tag": "icon", "filename": "res/icons/ios/icon-small.png", "platform": "ios", "width": "29", "height": "29"},
     {"tag": "icon", "filename": "res/icons/ios/icon-small-2x.png", "platform": "ios", "width": "58", "height": "58"},
+    {"tag": "icon", "filename": "res/icons/ios/icon-small-3x.png", "platform": "ios", "width": "87", "height": "87"},
+    {"tag": "icon", "filename": "res/icons/ios/icon-83.5-2x.png", "platform": "ios", "width": "167", "height": "167"},
     {"tag": "splash", "filename": "res/screens/ios/screen-ipad-landscape.png", "platform": "ios", "width": "1024", "height": "768"},
     {"tag": "splash", "filename": "res/screens/ios/screen-ipad-portrait.png", "platform": "ios", "width": "768", "height": "1024"},
     {"tag": "splash", "filename": "res/screens/ios/screen-ipad-landscape-2x.png", "platform": "ios", "width": "2048", "height": "1536"},
