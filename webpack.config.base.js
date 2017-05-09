@@ -24,7 +24,7 @@ module.exports = function(env) {
 
     var index_template_path = utils.getBaseOrCustomPath("src/www/index.html.mustache");
     var config_template_path = utils.getBaseOrCustomPath("src/config.xml.mustache");
-    var default_splash_path = utils.getBaseOrCustomPath("src/resources/screens/splash.png");
+    var default_splash_path = utils.getBaseOrCustomPath("src/resources/splash.png");
 
     // Build the configuration object.
     var config = {

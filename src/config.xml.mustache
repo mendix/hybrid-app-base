@@ -38,7 +38,6 @@
     <plugin name="cordova-plugin-file-transfer" source="npm" spec="1.5.1" />
     <plugin name="cordova-plugin-globalization" source="npm" spec="1.0.3" />
     <plugin name="cordova-plugin-inappbrowser" source="npm" spec="1.4.0" />
-    <plugin name="cordova-plugin-media" source="npm" spec="2.3.0" />
     <plugin name="cordova-plugin-network-information" source="npm" spec="1.2.1" />
     <plugin name="cordova-plugin-secure-storage" source="npm" spec="2.4.0" />
     <plugin name="cordova-plugin-spinner" source="npm" spec="1.1.0" />
@@ -96,6 +95,10 @@
             <param name="GEOLOCATION_USAGE_DESCRIPTION" value="This app needs to access your location" />
         </plugin>
     {{/permissions.geoLocation}}
+
+    {{#permissions.microphone}}
+        <plugin name="cordova-plugin-media" source="npm" spec="2.3.0" />
+    {{/permissions.microphone}}
 
     {{#iosEnabled}}
         <!-- On iOS, the statusbar is transparent by default and is drawn over the top of our app. -->

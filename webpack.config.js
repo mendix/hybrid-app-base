@@ -69,7 +69,7 @@ module.exports = function(env) {
         ]
     });
 
-    if (env && env.prod) {
+    if (!settings.options.debug) {
         config.devtool = "source-map";
 
         config.plugins.push(

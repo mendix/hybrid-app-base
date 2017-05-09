@@ -34,6 +34,10 @@ function compile_settings(env) {
                 Object.assign(settings.options, { "architecture": architecture });
             }
         });
+
+        if (env["debug"]) {
+            Object.assign(settings.options, { "debug": true });
+        }
     }
 
     // Propagate the environment settings
@@ -48,6 +52,8 @@ function compile_settings(env) {
     if (environments[settings.options.environment]) {
         Object.assign(settings, environments[settings.options.environment]);
     }
+
+    settings.options.debug = settings.options.debug || (settings.options.environment !== "production");
 
     return settings;
 }
