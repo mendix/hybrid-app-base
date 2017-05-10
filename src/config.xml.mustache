@@ -118,16 +118,14 @@
         <!-- Disable backup to iCloud on iOS. -->
         <preference name="BackupWebStorage" value="none" />
 
-        {{#wkWebViewEnabled}}
-            <!-- Enable WKWebView on iOS -->
-            <!-- TODO: kvl: Check if this can really be removed -->
-            <!--<feature name="CDVWKWebViewEngine">-->
-            <!--<param name="ios-package" value="CDVWKWebViewEngine" />-->
-            <!--</feature>-->
-            <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+        <!-- Enable WKWebView on iOS -->
+        <feature name="CDVWKWebViewEngine">
+            <param name="ios-package" value="CDVWKWebViewEngine" />
+        </feature>
 
-            <plugin name="cordova-plugin-wkwebview-engine-nextgen" source="npm" spec="1.0.1" />
-        {{/wkWebViewEnabled}}
+        <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+
+        <plugin name="cordova-plugin-wkwebview-engine-nextgen" source="npm" spec="1.0.1" />
 
         <platform name="ios">
             {{#iosImages}}

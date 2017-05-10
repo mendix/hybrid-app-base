@@ -10,7 +10,6 @@
   "requirePin": false,
   "androidEnabled": true,
   "iosEnabled": true,
-  "wkWebViewEnabled": true,
   "permissions": {
     "calendar": true,
     "camera": true,
