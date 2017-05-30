@@ -60,7 +60,7 @@ module.exports = function(env) {
             // Clean up previous builds
             new CleanWebpackPlugin(["build"], {
                 root: process.cwd(),
-                exclude: ["platforms", "plugins"]
+                exclude: ["platforms", "plugins", "package.json"]
             }),
             // Make the static strings translatable / configurable
             new I18nPlugin(utils.loadConfiguration("config/texts.json"), {
