@@ -9,6 +9,12 @@ var pinView = require("./pinView");
 var secureStore = require("./secure-store");
 var localStore = require("./local-store");
 
+function requireAll(requireContext) {
+    return requireContext.keys().map(requireContext);
+}
+
+requireAll(require.context("template/styles"));
+
 require("../styles/index.css");
 require("../styles/login.css");
 
