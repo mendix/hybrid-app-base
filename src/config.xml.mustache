@@ -140,7 +140,10 @@
 
         <preference name="CrosswalkAnimatable" value="true" />
         <preference name="xwalkMultipleApk" value="true" />
-        <preference name="buildArchitecture" value="{{options.architecture}}" />
+
+        {{#options.architecture}}
+            <preference name="buildArchitecture" value="{{.}}" />
+        {{/options.architecture}}
 
         <plugin name="cordova-plugin-crosswalk-webview" source="npm" spec="2.3.0" />
         <plugin name="cordova-plugin-whitelist" source="npm" spec="1.2.2" />
