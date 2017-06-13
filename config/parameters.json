@@ -4,8 +4,6 @@
   "name": "My App",
   "description": "Look at My App!",
   "url": "http://example.org",
-  "hybridTabletProfile": "",
-  "hybridPhoneProfile": "",
   "enableOffline": false,
   "requirePin": false,
   "androidEnabled": true,
