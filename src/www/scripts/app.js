@@ -609,7 +609,7 @@ module.exports = (function() {
         };
     };
 
-    var initialize = function(url, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin) {
+    var initialize = function(url, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin, username, password) {
         try {
             enableOffline = !!enableOffline;
 
@@ -626,18 +626,26 @@ module.exports = (function() {
                 return config.downloadResources || enableOffline;
             };
 
-            if (requirePin) {
-                var tokenStore = new TokenStore(secureStore);
-
-                BPromise.all([ tokenStore.get(), pin.get() ]).spread(function(token, storedPin) {
-                    if (token && storedPin) {
-                        pinView.verify(syncAndStartup);
-                    } else {
-                        BPromise.all([ tokenStore.remove(), pin.remove() ]).then(syncAndStartup);
-                    }
+            if (typeof username !== 'undefined' && username.length > 0 && typeof password !== 'undefined' && password.length > 0) {
+                createSessionWithCredentials(appUrl, username, password).then(function() {
+                    syncAndStartup();
+                }, function(e) {
+                    handleError(e);
                 });
             } else {
-                syncAndStartup();
+                if (requirePin) {
+                    var tokenStore = new TokenStore(secureStore);
+
+                    BPromise.all([ tokenStore.get(), pin.get() ]).spread(function(token, storedPin) {
+                        if (token && storedPin) {
+                            pinView.verify(syncAndStartup);
+                        } else {
+                            BPromise.all([ tokenStore.remove(), pin.remove() ]).then(syncAndStartup);
+                        }
+                    });
+                } else {
+                    syncAndStartup();
+                }
             }
         } catch (e) {
             handleError(e);
@@ -659,6 +667,66 @@ module.exports = (function() {
     };
 
     var emitter = new Emitter();
+
+    // var normalizeUrl = function(url) {
+    //     if (url !== '') {
+    //         if (!endsWith(url, "/")) {
+    //             url += '/';
+    //         }
+    //
+    //         if (!startsWith(url, "https://")) {
+    //             if (!startsWith(url, "http://")) {
+    //                 url = 'http://' + url;
+    //             }
+    //         }
+    //
+    //         url = url.split(',').join('');
+    //     }
+    //
+    //     return url;
+    // };
+
+    var createSessionWithCredentials = function(url, username, password) {
+        // var loginUrl = normalizeUrl(url) + 'xas/';
+        var loginUrl = url + 'xas/';
+        var attempts = 20;
+
+        function doLoginRequest(callback) {
+            request(loginUrl, {
+                timeout: 5000,
+                onLoad: callback,
+                method: "post",
+                headers: { "Content-Type": "application/json" },
+                data: JSON.stringify({
+                    action : "login",
+                    params : {
+                        username: username,
+                        password: password
+                    }
+                })
+            });
+        }
+
+        return new BPromise(function(resolve, reject) {
+            doLoginRequest(function(status, result) {
+                if (status === 200) {
+                    resolve();
+                } else if (status === 404) {
+                    // If config is not found, assume the default config
+                    reject("Failed to log in");
+                } else if (status === 503) {
+                    if (--attempts > 0) {
+                        // If the app is suspended, wait for it to wake up
+                        setTimeout(doLoginRequest, 5000);
+                    } else {
+                        reject();
+                    }
+                } else {
+                    reject("Failed to log in");
+                }
+            });
+        });
+    };
 
     return {
         initialize: initialize,
