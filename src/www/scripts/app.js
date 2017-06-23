@@ -609,6 +609,15 @@ module.exports = (function() {
         };
     };
 
+    var credentialsProvided = function(username, password) {
+        return (
+            typeof username !== 'undefined' &&
+            username.length > 0 &&
+            typeof password !== 'undefined' &&
+            password.length > 0
+        );
+    };
+
     var initialize = function(url, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin, username, password) {
         try {
             enableOffline = !!enableOffline;
@@ -622,34 +631,46 @@ module.exports = (function() {
 
             setupDirectoryLocations();
 
+            var tokenStore = requirePin ? new TokenStore(secureStore) : new TokenStore(localStore);
+
             var shouldDownloadFn = function(config) {
                 return config.downloadResources || enableOffline;
             };
 
-            if (typeof username !== 'undefined' && username.length > 0 && typeof password !== 'undefined' && password.length > 0) {
-                createSessionWithCredentials(appUrl, username, password).then(function() {
-                    syncAndStartup();
-                }, function(e) {
-                    handleError(e);
-                });
-            } else {
-                if (requirePin) {
-                    var tokenStore = new TokenStore(secureStore);
-
-                    BPromise.all([ tokenStore.get(), pin.get() ]).spread(function(token, storedPin) {
-                        if (token && storedPin) {
-                            pinView.verify(syncAndStartup);
-                        } else {
-                            BPromise.all([ tokenStore.remove(), pin.remove() ]).then(syncAndStartup);
-                        }
+            var cleanUpTokensFn = function() {
+                return BPromise
+                    .all([tokenStore.remove(), pin.remove()])
+                    .catch(function() {
+                        console.info("Could not clean tokenStore and PIN; maybe they were already removed.");
                     });
+            };
+
+            new BPromise(function(resolve, reject) {
+                if (credentialsProvided(username, password)) {
+                    cleanUpTokensFn()
+                        .then(function() {
+                            return createSessionWithCredentials(appUrl, username, password);
+                        })
+                        .then(resolve, reject);
+                } else if (requirePin) {
+                    BPromise
+                        .all([tokenStore.get(), pin.get()])
+                        .spread(function(token, storedPin) {
+                            if (token && storedPin) {
+                                pinView.verify(resolve);
+                            } else {
+                                return cleanUpTokensFn()
+                                    .then(resolve);
+                            }
+                        });
                 } else {
-                    syncAndStartup();
+                    resolve();
                 }
-            }
+            }).catch(function(e) {
+                handleError(e);
+            }).finally(syncAndStartup);
         } catch (e) {
             handleError(e);
-            return;
         }
 
         function syncAndStartup() {
@@ -666,30 +687,13 @@ module.exports = (function() {
         }
     };
 
-    var emitter = new Emitter();
-
-    // var normalizeUrl = function(url) {
-    //     if (url !== '') {
-    //         if (!endsWith(url, "/")) {
-    //             url += '/';
-    //         }
-    //
-    //         if (!startsWith(url, "https://")) {
-    //             if (!startsWith(url, "http://")) {
-    //                 url = 'http://' + url;
-    //             }
-    //         }
-    //
-    //         url = url.split(',').join('');
-    //     }
-    //
-    //     return url;
-    // };
-
     var createSessionWithCredentials = function(url, username, password) {
-        // var loginUrl = normalizeUrl(url) + 'xas/';
         var loginUrl = url + 'xas/';
         var attempts = 20;
+
+        if (!credentialsProvided(username, password)) {
+            throw new Error("Missing username and/or password");
+        }
 
         function doLoginRequest(callback) {
             request(loginUrl, {
@@ -711,22 +715,21 @@ module.exports = (function() {
             doLoginRequest(function(status, result) {
                 if (status === 200) {
                     resolve();
-                } else if (status === 404) {
-                    // If config is not found, assume the default config
-                    reject("Failed to log in");
                 } else if (status === 503) {
                     if (--attempts > 0) {
                         // If the app is suspended, wait for it to wake up
                         setTimeout(doLoginRequest, 5000);
                     } else {
-                        reject();
+                        reject(new UserVisibleError("Failed to log in: app is not running"));
                     }
                 } else {
-                    reject("Failed to log in");
+                    reject(new UserVisibleError("Failed to log in"));
                 }
             });
         });
     };
+
+    var emitter = new Emitter();
 
     return {
         initialize: initialize,
