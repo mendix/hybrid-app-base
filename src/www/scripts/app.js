@@ -381,7 +381,7 @@ module.exports = (function() {
         }
 
         return new BPromise(function(resolve, reject) {
-            fetchConfig(function(status, result) {
+            var cb = function(status, result) {
                 if (status === 200) {
                     resolve(JSON.parse(result));
                 } else if (status === 404) {
@@ -390,14 +390,16 @@ module.exports = (function() {
                 } else if (status === 503) {
                     if (--attempts > 0) {
                         // If the app is suspended, wait for it to wake up
-                        setTimeout(fetchConfig, 5000);
+                        setTimeout(fetchConfig, 5000, cb);
                     } else {
                         reject();
                     }
                 } else {
                     reject();
                 }
-            });
+            };
+
+            fetchConfig(cb);
         });
     };
 
@@ -712,20 +714,22 @@ module.exports = (function() {
         }
 
         return new BPromise(function(resolve, reject) {
-            doLoginRequest(function(status, result) {
+            var cb = function(status, result) {
                 if (status === 200) {
                     resolve();
                 } else if (status === 503) {
                     if (--attempts > 0) {
                         // If the app is suspended, wait for it to wake up
-                        setTimeout(doLoginRequest, 5000);
+                        setTimeout(doLoginRequest, 5000, cb);
                     } else {
                         reject(new UserVisibleError("Failed to log in: app is not running"));
                     }
                 } else {
                     reject(new UserVisibleError("Failed to log in"));
                 }
-            });
+            };
+
+            doLoginRequest(cb);
         });
     };
 
