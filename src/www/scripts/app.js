@@ -74,10 +74,15 @@ module.exports = (function() {
         xhr.send(params.data);
     };
 
-    var showError = function(message) {
+    var showError = function(message, callback) {
         document.getElementById("mxalert_message").textContent = message;
         document.getElementById("mxalert_button").addEventListener("touchstart", function() {
-            window.location.reload();
+            if (typeof callback === "function") {
+                document.getElementById("mxalert").style.display = "none";
+                callback();
+            } else {
+                window.location.reload();
+            }
         });
         document.getElementById("mxalert").style.display = "block";
 
@@ -668,9 +673,11 @@ module.exports = (function() {
                 } else {
                     resolve();
                 }
-            }).catch(function(e) {
-                handleError(e);
-            }).finally(syncAndStartup);
+            })
+                .catch(function(e) {
+                    return handleError(e);
+                })
+                .then(syncAndStartup);
         } catch (e) {
             handleError(e);
         }
@@ -684,8 +691,10 @@ module.exports = (function() {
         }
 
         function handleError(e) {
-            console.error(e);
-            showError(makeVisibleError(e));
+            return new BPromise(function(resolve) {
+                console.error(e);
+                showError(makeVisibleError(e), resolve);
+            });
         }
     };
 
