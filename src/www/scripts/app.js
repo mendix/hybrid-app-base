@@ -74,10 +74,15 @@ module.exports = (function() {
         xhr.send(params.data);
     };
 
-    var showError = function(message) {
+    var showError = function(message, callback) {
         document.getElementById("mxalert_message").textContent = message;
         document.getElementById("mxalert_button").addEventListener("touchstart", function() {
-            window.location.reload();
+            if (typeof callback === "function") {
+                document.getElementById("mxalert").style.display = "none";
+                callback();
+            } else {
+                window.location.reload();
+            }
         });
         document.getElementById("mxalert").style.display = "block";
 
@@ -381,7 +386,7 @@ module.exports = (function() {
         }
 
         return new BPromise(function(resolve, reject) {
-            fetchConfig(function(status, result) {
+            var cb = function(status, result) {
                 if (status === 200) {
                     resolve(JSON.parse(result));
                 } else if (status === 404) {
@@ -390,14 +395,16 @@ module.exports = (function() {
                 } else if (status === 503) {
                     if (--attempts > 0) {
                         // If the app is suspended, wait for it to wake up
-                        setTimeout(fetchConfig, 5000);
+                        setTimeout(fetchConfig, 5000, cb);
                     } else {
                         reject();
                     }
                 } else {
                     reject();
                 }
-            });
+            };
+
+            fetchConfig(cb);
         });
     };
 
@@ -609,7 +616,16 @@ module.exports = (function() {
         };
     };
 
-    var initialize = function(url, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin) {
+    var credentialsProvided = function(username, password) {
+        return (
+            typeof username !== 'undefined' &&
+            username.length > 0 &&
+            typeof password !== 'undefined' &&
+            password.length > 0
+        );
+    };
+
+    var initialize = function(url, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin, username, password) {
         try {
             enableOffline = !!enableOffline;
 
@@ -622,26 +638,48 @@ module.exports = (function() {
 
             setupDirectoryLocations();
 
+            var tokenStore = requirePin ? new TokenStore(secureStore) : new TokenStore(localStore);
+
             var shouldDownloadFn = function(config) {
                 return config.downloadResources || enableOffline;
             };
 
-            if (requirePin) {
-                var tokenStore = new TokenStore(secureStore);
+            var cleanUpTokensFn = function() {
+                return BPromise
+                    .all([tokenStore.remove(), pin.remove()])
+                    .catch(function() {
+                        console.info("Could not clean tokenStore and PIN; maybe they were already removed.");
+                    });
+            };
 
-                BPromise.all([ tokenStore.get(), pin.get() ]).spread(function(token, storedPin) {
-                    if (token && storedPin) {
-                        pinView.verify(syncAndStartup);
-                    } else {
-                        BPromise.all([ tokenStore.remove(), pin.remove() ]).then(syncAndStartup);
-                    }
-                });
-            } else {
-                syncAndStartup();
-            }
+            new BPromise(function(resolve, reject) {
+                if (credentialsProvided(username, password)) {
+                    cleanUpTokensFn()
+                        .then(function() {
+                            return createSessionWithCredentials(appUrl, username, password);
+                        })
+                        .then(resolve, reject);
+                } else if (requirePin) {
+                    BPromise
+                        .all([tokenStore.get(), pin.get()])
+                        .spread(function(token, storedPin) {
+                            if (token && storedPin) {
+                                pinView.verify(resolve);
+                            } else {
+                                return cleanUpTokensFn()
+                                    .then(resolve);
+                            }
+                        });
+                } else {
+                    resolve();
+                }
+            })
+                .catch(function(e) {
+                    return handleError(e);
+                })
+                .then(syncAndStartup);
         } catch (e) {
             handleError(e);
-            return;
         }
 
         function syncAndStartup() {
@@ -653,9 +691,55 @@ module.exports = (function() {
         }
 
         function handleError(e) {
-            console.error(e);
-            showError(makeVisibleError(e));
+            return new BPromise(function(resolve) {
+                console.error(e);
+                showError(makeVisibleError(e), resolve);
+            });
         }
+    };
+
+    var createSessionWithCredentials = function(url, username, password) {
+        var loginUrl = url + 'xas/';
+        var attempts = 20;
+
+        if (!credentialsProvided(username, password)) {
+            throw new Error("Missing username and/or password");
+        }
+
+        function doLoginRequest(callback) {
+            request(loginUrl, {
+                timeout: 5000,
+                onLoad: callback,
+                method: "post",
+                headers: { "Content-Type": "application/json" },
+                data: JSON.stringify({
+                    action : "login",
+                    params : {
+                        username: username,
+                        password: password
+                    }
+                })
+            });
+        }
+
+        return new BPromise(function(resolve, reject) {
+            var cb = function(status, result) {
+                if (status === 200) {
+                    resolve();
+                } else if (status === 503) {
+                    if (--attempts > 0) {
+                        // If the app is suspended, wait for it to wake up
+                        setTimeout(doLoginRequest, 5000, cb);
+                    } else {
+                        reject(new UserVisibleError("Failed to log in: app is not running"));
+                    }
+                } else {
+                    reject(new UserVisibleError("Failed to log in"));
+                }
+            };
+
+            doLoginRequest(cb);
+        });
     };
 
     var emitter = new Emitter();
