@@ -1,6 +1,6 @@
 {
   "name": "mendix-hybrid-app-base",
-  "version": "v1.1.0",
+  "version": "1.1.0",
   "description": "Mendix PhoneGap Build base package",
   "scripts": {
     "appbase": "webpack --config ./webpack.config.appbase.js"
@@ -17,6 +17,7 @@
     "README.md"
   ],
   "dependencies": {
+    "babel-loader": "^7.1.1",
     "bluebird": "^2.9.27",
     "clean-webpack-plugin": "^0.1.16",
     "copy-webpack-plugin": "^4.0.1",
@@ -30,7 +31,7 @@
     "style-loader": "^0.13.2",
     "tiny-emitter": "^1.1.0",
     "uglifyjs-webpack-plugin": "^0.3.0",
-    "webpack": "^2.2.1",
+    "webpack": "^3.0.0",
     "webpack-archive-plugin": "^3.0.0",
     "webpack-merge": "^4.1.0"
   },

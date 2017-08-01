@@ -683,6 +683,8 @@ module.exports = (function() {
         }
 
         function syncAndStartup() {
+            // TODO: Check for existing resources
+
             synchronizeResources(appUrl, shouldDownloadFn)
                 .spread(function(config, resourcesUrl) {
                     return startup(config, resourcesUrl, appUrl, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin);
