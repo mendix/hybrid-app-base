@@ -1,7 +1,5 @@
 "use strict";
 
-var BPromise = require("bluebird");
-
 module.exports = (function() {
     var remove = function(namespace, key) {
         return window.localStorage.removeItem(key)
@@ -12,7 +10,7 @@ module.exports = (function() {
     };
 
     var get = function(namespace, key) {
-        return BPromise.resolve(window.localStorage.getItem(key));
+        return Promise.resolve(window.localStorage.getItem(key));
     };
 
     return {

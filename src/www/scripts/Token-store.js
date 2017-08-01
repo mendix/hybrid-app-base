@@ -1,7 +1,5 @@
 "use strict";
 
-var BPromise = require("bluebird");
-
 module.exports = (function() {
     var tokenKey = "mx-authtoken";
 
@@ -18,7 +16,7 @@ module.exports = (function() {
     TokenStore.prototype.get = function() {
         return getNamespace().then(function(storageNamespace) {
             return this._store.get(storageNamespace, tokenKey).caught(function() {
-                return BPromise.resolve(undefined);
+                return Promise.resolve(undefined);
             });
         }.bind(this));
     };
@@ -26,13 +24,13 @@ module.exports = (function() {
     TokenStore.prototype.remove = function() {
         return getNamespace().then(function(storageNamespace) {
             return this._store.remove(storageNamespace, tokenKey).caught(function() {
-                return BPromise.resolve();
+                return Promise.resolve();
             });
         }.bind(this));
     };
 
     var getNamespace = function() {
-        return new BPromise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             return cordova.getAppVersion.getPackageName(resolve);
         });
     };

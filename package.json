@@ -3,7 +3,16 @@
   "version": "1.1.0",
   "description": "Mendix PhoneGap Build base package",
   "scripts": {
-    "appbase": "webpack --config ./webpack.config.appbase.js"
+    "appbase": "./node_modules/webpack/bin/webpack --config ./webpack.config.appbase.js",
+    "package": "node ./node_modules/webpack/bin/webpack",
+    "watch": "node ./node_modules/webpack/bin/webpack --watch",
+    "platform": "cd build && phonegap platforms",
+    "plugin": "cd build && phonegap plugin",
+    "prepare": "cd build && phonegap prepare",
+    "compile": "cd build && phonegap compile",
+    "build": "cd build && phonegap build",
+    "run": "cd build && phonegap run",
+    "remote": "cd build && phonegap remote run"
   },
   "main": "src/www/scripts/entry.js",
   "directories": {
@@ -17,8 +26,9 @@
     "README.md"
   ],
   "dependencies": {
+    "babel-core": "^6.25.0",
     "babel-loader": "^7.1.1",
-    "bluebird": "^2.9.27",
+    "babel-preset-env": "^1.6.0",
     "clean-webpack-plugin": "^0.1.16",
     "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.26.4",

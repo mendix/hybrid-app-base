@@ -1,7 +1,6 @@
 "use strict";
 
 var Emitter = require('tiny-emitter');
-var BPromise = require("bluebird");
 var TokenStore = require("./Token-store");
 
 var pin = require("./pin");
@@ -139,7 +138,7 @@ module.exports = (function() {
     };
 
     var _startup = function(config, url, appUrl, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin) {
-        return new BPromise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             window.dojoConfig = {
                 appbase: url,
                 remotebase: appUrl,
@@ -385,7 +384,7 @@ module.exports = (function() {
             });
         }
 
-        return new BPromise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             var cb = function(status, result) {
                 if (status === 200) {
                     resolve(JSON.parse(result));
@@ -409,7 +408,7 @@ module.exports = (function() {
     };
 
     var getLocalConfig = function() {
-        return new BPromise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             request(resourcesDirectory + "components.json?" + (+ new Date()), {
                 method: "GET",
                 onLoad: function(status, result) {
@@ -439,7 +438,7 @@ module.exports = (function() {
     };
 
     var download = function(sourceUri, destinationUri, trustAllHosts, options, onprogress) {
-        return new BPromise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             var fileTransfer = new FileTransfer();
             fileTransfer.onprogress = onprogress;
             fileTransfer.download(sourceUri, destinationUri, resolve, reject, trustAllHosts, options);
@@ -457,7 +456,7 @@ module.exports = (function() {
     var downloadAppPackage = withProgressMessage(_downloadAppPackage, __("Updating app..."));
 
     var removeFile = function(fileUri) {
-        return new BPromise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             window.resolveLocalFileSystemURI(fileUri, function(fileEntry) {
                 fileEntry.remove(resolve, reject);
             }, reject);
@@ -465,7 +464,7 @@ module.exports = (function() {
     };
 
     var _removeRecursively = function(directoryUri) {
-        return new BPromise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             window.resolveLocalFileSystemURI(directoryUri, function(directoryEntry) {
                 directoryEntry.removeRecursively(resolve, reject);
             }, function(e) {
@@ -481,7 +480,7 @@ module.exports = (function() {
     var removeRecursively = withProgressMessage(_removeRecursively, __("Optimizing for your device..."));
 
     var unzip = function(sourceUri, destinationUri) {
-        return new BPromise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             zip.unzip(sourceUri, destinationUri, function(result) {
                 if (result === 0) {
                     resolve();
@@ -531,7 +530,7 @@ module.exports = (function() {
         return getRemoteConfig().then(function(remoteResult) {
             if (shouldDownloadFn(remoteResult)) {
                 var wrappedCallback = function() {
-                    return BPromise.resolve([ remoteResult, resourcesDirectory ]);
+                    return Promise.resolve([ remoteResult, resourcesDirectory ]);
                 };
 
                 var synchronize = function() {
@@ -548,11 +547,11 @@ module.exports = (function() {
 
                 return getLocalConfig().then(synchronizeIfCachebusted, synchronize);
             } else {
-                return BPromise.resolve([ remoteResult, url ]);
+                return Promise.resolve([ remoteResult, url ]);
             }
         }, function() {
             return getLocalConfig().then(function(result) {
-                return BPromise.resolve([ result, resourcesDirectory ]);
+                return Promise.resolve([ result, resourcesDirectory ]);
             });
         });
     };
@@ -645,14 +644,14 @@ module.exports = (function() {
             };
 
             var cleanUpTokensFn = function() {
-                return BPromise
+                return Promise
                     .all([tokenStore.remove(), pin.remove()])
                     .catch(function() {
                         console.info("Could not clean tokenStore and PIN; maybe they were already removed.");
                     });
             };
 
-            new BPromise(function(resolve, reject) {
+            new Promise(function(resolve, reject) {
                 if (credentialsProvided(username, password)) {
                     cleanUpTokensFn()
                         .then(function() {
@@ -660,9 +659,9 @@ module.exports = (function() {
                         })
                         .then(resolve, reject);
                 } else if (requirePin) {
-                    BPromise
+                    Promise
                         .all([tokenStore.get(), pin.get()])
-                        .spread(function(token, storedPin) {
+                        .then(function([token, storedPin]) {
                             if (token && storedPin) {
                                 pinView.verify(resolve);
                             } else {
@@ -686,14 +685,14 @@ module.exports = (function() {
             // TODO: Check for existing resources
 
             synchronizeResources(appUrl, shouldDownloadFn)
-                .spread(function(config, resourcesUrl) {
+                .then(function([config, resourcesUrl]) {
                     return startup(config, resourcesUrl, appUrl, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin);
                 })
                 .catch(handleError);
         }
 
         function handleError(e) {
-            return new BPromise(function(resolve) {
+            return new Promise(function(resolve) {
                 console.error(e);
                 showError(makeVisibleError(e), resolve);
             });
@@ -724,7 +723,7 @@ module.exports = (function() {
             });
         }
 
-        return new BPromise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             var cb = function(status, result) {
                 if (status === 200) {
                     resolve();
