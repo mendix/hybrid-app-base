@@ -4,15 +4,15 @@
   "description": "Mendix PhoneGap Build base package",
   "scripts": {
     "appbase": "./node_modules/webpack/bin/webpack --config ./webpack.config.appbase.js",
-    "package": "node ./node_modules/webpack/bin/webpack",
-    "watch": "node ./node_modules/webpack/bin/webpack --watch",
-    "platform": "cd build && phonegap platforms",
-    "plugin": "cd build && phonegap plugin",
-    "prepare": "cd build && phonegap prepare",
-    "compile": "cd build && phonegap compile",
-    "build": "cd build && phonegap build",
-    "run": "cd build && phonegap run",
-    "remote": "cd build && phonegap remote run"
+    "pgpackage": "node ./node_modules/webpack/bin/webpack",
+    "pgwatch": "node ./node_modules/webpack/bin/webpack --watch",
+    "pgplatform": "cd build && phonegap platforms",
+    "pgplugin": "cd build && phonegap plugin",
+    "pgprepare": "cd build && phonegap prepare",
+    "pgcompile": "cd build && phonegap compile",
+    "pgbuild": "cd build && phonegap build",
+    "pgrun": "cd build && phonegap run",
+    "pgremote": "cd build && phonegap remote run"
   },
   "main": "src/www/scripts/entry.js",
   "directories": {
@@ -40,7 +40,7 @@
     "sanitize-filename": "^1.6.1",
     "style-loader": "^0.13.2",
     "tiny-emitter": "^1.1.0",
-    "uglifyjs-webpack-plugin": "^0.3.0",
+    "uglifyjs-webpack-plugin": "^1.0.0-beta.2",
     "webpack": "^3.0.0",
     "webpack-archive-plugin": "^3.0.0",
     "webpack-merge": "^4.1.0"

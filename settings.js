@@ -35,9 +35,7 @@ function compile_settings(env) {
             }
         });
 
-        if (env["debug"]) {
-            Object.assign(settings.options, { "debug": true });
-        }
+        Object.assign(settings.options, { "debug": (env["debug"] && env["debug"] !== "false") });
     }
 
     // Propagate the environment settings
@@ -45,7 +43,7 @@ function compile_settings(env) {
 
     var target = settings.options.environment;
     if (environmentAliases[target]) {
-        target = environmentAliases[target]
+        target = environmentAliases[target];
         Object.assign(settings.options, { "environment": target });
     }
 
@@ -53,7 +51,9 @@ function compile_settings(env) {
         Object.assign(settings, environments[settings.options.environment]);
     }
 
-    settings.options.debug = settings.options.debug || (settings.options.environment !== "production");
+    if (typeof settings.options.debug === 'undefined') {
+        settings.options.debug = (settings.options.environment !== "production");
+    }
 
     return settings;
 }
