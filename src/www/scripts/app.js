@@ -99,6 +99,13 @@ module.exports = (function() {
     var withProgressMessage = function(fn, message) {
         return function() {
             setProgressMessage(message);
+
+            let appNode = document.getElementById("mx-app");
+            if (appNode) appNode.style.display = "block";
+
+            let loaderNode = document.getElementById("mx-loader-container");
+            if (loaderNode) loaderNode.style.display = "table";
+
             return fn.apply(null, arguments);
         };
     };
@@ -174,7 +181,17 @@ module.exports = (function() {
                 },
                 store: {
                     createStoreFn: function() {
-                        return window.sqlitePlugin.openDatabase({ name: "MendixDatabase.db", location: 2 });
+                        let db = window.sqlitePlugin.openDatabase({ name: "MendixDatabase.db", location: 2 });
+
+                        window.onbeforeunload = function(e) {
+                            db.close(function () {
+                                console.log("DB closed!");
+                            }, function (error) {
+                                console.log("Error closing DB: " + error.message);
+                            });
+                        };
+
+                        return db;
                     }
                 },
                 session: {
@@ -361,10 +378,7 @@ module.exports = (function() {
 
     var removeSelf = function() {
         var appNode = document.getElementById("mx-app");
-        if (appNode) appNode.parentNode.removeChild(appNode);
-
-        var styleNode = document.querySelector("link[href='css/index.css']");
-        if (styleNode) styleNode.parentNode.removeChild(styleNode);
+        if (appNode) appNode.style.display = "none";
     };
 
     var hideLoader = function() {
@@ -523,37 +537,57 @@ module.exports = (function() {
             .then(unpackageWithCleanup, handleFailedDownload);
     };
 
-    var synchronizeResources = function(url, shouldDownloadFn) {
-        var sourceUri = encodeURI(url + "resources.zip"),
-            destinationUri = cacheDirectory + "resources.zip";
+    var synchronizeResources = async function(url, shouldDownloadFn) {
+        const sourceUri = encodeURI(url + "resources.zip");
+        const destinationUri = cacheDirectory + "resources.zip";
 
-        return getRemoteConfig().then(function(remoteResult) {
-            if (shouldDownloadFn(remoteResult)) {
-                var wrappedCallback = function() {
-                    return Promise.resolve([ remoteResult, resourcesDirectory ]);
-                };
+        let remoteResult;
 
-                var synchronize = function() {
-                    return synchronizePackage(sourceUri, destinationUri).then(wrappedCallback);
-                };
+        try {
+            remoteResult = await getRemoteConfig();
+        } catch (e) {
+            const localResult = await getLocalConfig();
 
-                var synchronizeIfCachebusted = function(result) {
-                    if (remoteResult.cachebust == result.cachebust) {
-                        return wrappedCallback();
-                    } else {
-                        return synchronize();
-                    }
-                };
+            return [ localResult, resourcesDirectory ];
+        }
 
-                return getLocalConfig().then(synchronizeIfCachebusted, synchronize);
-            } else {
-                return Promise.resolve([ remoteResult, url ]);
+        if (shouldDownloadFn(remoteResult)) {
+            let synchronize = async function() {
+                await synchronizePackage(sourceUri, destinationUri);
+                return [ remoteResult, resourcesDirectory ];
+            };
+
+            let synchronizeInBackground = async function(buttonIndex) {
+                if (typeof buttonIndex === 'undefined' || buttonIndex === 1) {
+                    await synchronizePackage(sourceUri, destinationUri);
+                    window.location.reload();
+                }
+            };
+
+            let localResult;
+
+            try {
+                localResult = await getLocalConfig();
+            } catch (e) {
+                return synchronize();
             }
-        }, function() {
-            return getLocalConfig().then(function(result) {
-                return Promise.resolve([ result, resourcesDirectory ]);
-            });
-        });
+
+            if (remoteResult.cachebust !== localResult.cachebust) {
+                if (onAppUpdateAvailableFn) {
+                    onAppUpdateAvailableFn(synchronizeInBackground);
+                } else {
+                    navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
+                        synchronizeInBackground,
+                        __("Update ready"),
+                        [__("Yes"), __("No, update later")]
+                    );
+                }
+            }
+
+            return [ localResult, resourcesDirectory ];
+        } else {
+            return [ remoteResult, url ];
+        }
     };
 
     var setupDirectoryLocations = function() {
@@ -743,11 +777,13 @@ module.exports = (function() {
         });
     };
 
-    var emitter = new Emitter();
+    let emitter = new Emitter();
+    let onAppUpdateAvailableFn;
 
     return {
         initialize: initialize,
         onConfigReady: emitter.on.bind(emitter, "onConfigReady"),
-        onClientReady: emitter.on.bind(emitter, "onClientReady")
+        onClientReady: emitter.on.bind(emitter, "onClientReady"),
+        onAppUpdateAvailable: (fn) => onAppUpdateAvailableFn = fn
     }
 })();

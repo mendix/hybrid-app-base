@@ -58,7 +58,11 @@ module.exports = function(env) {
                     use: {
                         loader: 'babel-loader',
                         options: {
-                            presets: ['env'],
+                            presets: [['env', {
+                                "targets": {
+                                    "browsers": ["last 2 ChromeAndroid versions", "last 2 iOS versions"]
+                                }
+                            }]],
                             cacheDirectory: true
                         }
                     }
