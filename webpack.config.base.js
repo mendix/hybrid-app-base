@@ -63,6 +63,7 @@ module.exports = function(env) {
                                     "uglify": true
                                 }
                             }]],
+                            plugins: ["transform-regenerator"],
                             cacheDirectory: true
                         }
                     }

@@ -1,4 +1,5 @@
 "use strict";
+import "babel-polyfill";
 
 var Emitter = require('tiny-emitter');
 var TokenStore = require("./Token-store");
@@ -541,54 +542,79 @@ module.exports = (function() {
         const sourceUri = encodeURI(url + "resources.zip");
         const destinationUri = cacheDirectory + "resources.zip";
 
-        let remoteResult;
+        let localResult;
 
         try {
-            remoteResult = await getRemoteConfig();
+            localResult = await getLocalConfig();
+
+            let asyncRemoteConfig = async (remoteResult) => {
+                let updateConfig = async (buttonIndex) => {
+                    if (typeof buttonIndex === 'undefined' || buttonIndex === 1) {
+                        if (shouldDownloadFn(remoteResult)) {
+                            await synchronizePackage(sourceUri, destinationUri);
+                            window.location.reload();
+                        } else {
+                            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, (fs) => {
+                                fs.root.getFile(resourcesDirectory + "components.json", { create: true, exclusive: false }, (fileEntry) => {
+                                    writeFile(fileEntry, JSON.stringify(remoteResult), () => window.location.reload());
+                                });
+                            });
+                        }
+                    }
+                }
+                
+                if (remoteResult.cachebust !== localResult.cachebust) {
+                    if (onAppUpdateAvailableFn) {
+                        onAppUpdateAvailableFn(updateConfig);
+                    } else {
+                        navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
+                            updateConfig,
+                            __("Update ready"),
+                            [__("Yes"), __("No, update later")]
+                        );
+                    }
+                }
+            };
+
+            getRemoteConfig().then(asyncRemoteConfig)
+            .catch((e) => {
+                console.log('Unable to retrieve components.json');
+            });
+
+            return [ localResult, (shouldDownloadFn(localResult)) ? resourcesDirectory : url ];
         } catch (e) {
-            const localResult = await getLocalConfig();
-
-            return [ localResult, resourcesDirectory ];
-        }
-
-        if (shouldDownloadFn(remoteResult)) {
-            let synchronize = async function() {
+            remoteResult = await getRemoteConfig();
+            if (shouldDownloadFn(remoteResult)) {
                 await synchronizePackage(sourceUri, destinationUri);
                 return [ remoteResult, resourcesDirectory ];
-            };
+            } else {
+                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, (fs) => {
+                    fs.root.getFile(resourcesDirectory + "components.json", { create: true, exclusive: false }, (fileEntry) => {
+                        writeFile(fileEntry, JSON.stringify(remoteResult));
+                    });
+                });
 
-            let synchronizeInBackground = async function(buttonIndex) {
-                if (typeof buttonIndex === 'undefined' || buttonIndex === 1) {
-                    await synchronizePackage(sourceUri, destinationUri);
-                    window.location.reload();
-                }
-            };
-
-            let localResult;
-
-            try {
-                localResult = await getLocalConfig();
-            } catch (e) {
-                return synchronize();
+                return [ remoteResult, url ];
             }
-
-            if (remoteResult.cachebust !== localResult.cachebust) {
-                if (onAppUpdateAvailableFn) {
-                    onAppUpdateAvailableFn(synchronizeInBackground);
-                } else {
-                    navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
-                        synchronizeInBackground,
-                        __("Update ready"),
-                        [__("Yes"), __("No, update later")]
-                    );
-                }
-            }
-
-            return [ localResult, resourcesDirectory ];
-        } else {
-            return [ remoteResult, url ];
         }
     };
+
+    let writeFile = (fileEntry, str, successCallback) => {
+        fileEntry.createWriter((fileWriter) => {
+
+            fileWriter.onwriteend = () => {
+                console.log("Successful file write! filePath : " + fileEntry.fullPath);
+                successCallback && successCallback();
+            };
+
+            fileWriter.onerror = (e) => {
+                console.log("Failed to write config. filePath : " + fileEntry.fullPath);
+            };
+
+            fileWriter.write(str);
+        });
+    };
+
 
     var setupDirectoryLocations = function() {
         if (cordova.wkwebview) {
