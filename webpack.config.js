@@ -74,7 +74,7 @@ module.exports = function(env) {
             devtool: "source-map",
 
             plugins: [
-                new UglifyJSPlugin({
+                new webpack.optimize.UglifyJsPlugin({
                     sourceMap: true,
                     ecma: 5,
                     toplevel: true,

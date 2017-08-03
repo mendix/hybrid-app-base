@@ -60,7 +60,7 @@ module.exports = function(env) {
                         options: {
                             presets: [['env', {
                                 "targets": {
-                                    "browsers": ["last 2 ChromeAndroid versions", "last 2 iOS versions"]
+                                    "uglify": true
                                 }
                             }]],
                             cacheDirectory: true
