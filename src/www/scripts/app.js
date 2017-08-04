@@ -547,19 +547,13 @@ module.exports = (function() {
         try {
             localResult = await getLocalConfig();
 
-            let asyncRemoteConfig = async (remoteResult) => {
+            getRemoteConfig().then((remoteResult) => {
                 let updateConfig = async (buttonIndex) => {
-                    if (typeof buttonIndex === 'undefined' || buttonIndex === 1) {
-                        if (shouldDownloadFn(remoteResult)) {
-                            await synchronizePackage(sourceUri, destinationUri);
-                            window.location.reload();
-                        } else {
-                            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, (fs) => {
-                                fs.root.getFile(resourcesDirectory + "components.json", { create: true, exclusive: false }, (fileEntry) => {
-                                    writeFile(fileEntry, JSON.stringify(remoteResult), () => window.location.reload());
-                                });
-                            });
-                        }
+                    if (shouldDownloadFn(remoteResult)) {
+                        await synchronizePackage(sourceUri, destinationUri);
+                        window.location.reload();
+                    } else {
+                        writeFile(resourcesDirectory, 'components.json', JSON.stringify(remoteResult), () => window.location.reload() );
                     }
                 }
                 
@@ -568,15 +562,13 @@ module.exports = (function() {
                         onAppUpdateAvailableFn(updateConfig);
                     } else {
                         navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
-                            updateConfig,
+                            (buttonIndex) => buttonIndex === 1 && updateConfig(),
                             __("Update ready"),
                             [__("Yes"), __("No, update later")]
                         );
                     }
                 }
-            };
-
-            getRemoteConfig().then(asyncRemoteConfig)
+            })
             .catch((e) => {
                 console.log('Unable to retrieve components.json');
             });
@@ -588,30 +580,32 @@ module.exports = (function() {
                 await synchronizePackage(sourceUri, destinationUri);
                 return [ remoteResult, resourcesDirectory ];
             } else {
-                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, (fs) => {
-                    fs.root.getFile(resourcesDirectory + "components.json", { create: true, exclusive: false }, (fileEntry) => {
-                        writeFile(fileEntry, JSON.stringify(remoteResult));
-                    });
-                });
-
+                writeFile(resourcesDirectory, 'components.json', JSON.stringify(remoteResult));
                 return [ remoteResult, url ];
             }
         }
     };
 
-    let writeFile = (fileEntry, str, successCallback) => {
-        fileEntry.createWriter((fileWriter) => {
+    let writeFile = (directory, fileName, content, successCallback) => {
+        window.resolveLocalFileSystemURL(directory, (dirEntry) => {
+            console.log('file system open: ' + dirEntry.name);
+            dirEntry.getFile(fileName, {create: true, exclusive: false}, (fileEntry) => {
 
-            fileWriter.onwriteend = () => {
-                console.log("Successful file write! filePath : " + fileEntry.fullPath);
-                successCallback && successCallback();
-            };
+                fileEntry.createWriter((fileWriter) => {
+                    fileWriter.onwriteend = () => {
+                        console.log("Successful file write! filePath : " + fileEntry.fullPath);
+                        successCallback && successCallback();
+                    };
 
-            fileWriter.onerror = (e) => {
-                console.log("Failed to write config. filePath : " + fileEntry.fullPath);
-            };
+                    fileWriter.onerror = (e) => {
+                        console.log("Failed to write file. filePath : " + fileEntry.fullPath);
+                    };
 
-            fileWriter.write(str);
+                    fileWriter.write(content);
+                });
+            });
+        }, (e) => {
+            console.log('writeFile error: ' + JSON.stringify(e));
         });
     };
 
