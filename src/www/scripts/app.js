@@ -538,77 +538,53 @@ module.exports = (function() {
             .then(unpackageWithCleanup, handleFailedDownload);
     };
 
-    var synchronizeResources = async function(url, shouldDownloadFn) {
+    var synchronizeResources = async function(url, enableOffline, shouldDownloadFn) {
         const sourceUri = encodeURI(url + "resources.zip");
         const destinationUri = cacheDirectory + "resources.zip";
 
-        let localResult;
+        if (enableOffline) {
+            try {
+                let localResult = await getLocalConfig();
 
-        try {
-            localResult = await getLocalConfig();
-
-            getRemoteConfig().then((remoteResult) => {
-                let updateConfig = async (buttonIndex) => {
-                    if (shouldDownloadFn(remoteResult)) {
+                getRemoteConfig().then((remoteResult) => {
+                    let updateConfig = async (buttonIndex) => {
                         await synchronizePackage(sourceUri, destinationUri);
                         window.location.reload();
-                    } else {
-                        writeFile(resourcesDirectory, 'components.json', JSON.stringify(remoteResult), () => window.location.reload() );
                     }
-                }
-                
-                if (remoteResult.cachebust !== localResult.cachebust) {
-                    if (onAppUpdateAvailableFn) {
-                        onAppUpdateAvailableFn(updateConfig);
-                    } else {
-                        navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
-                            (buttonIndex) => buttonIndex === 1 && updateConfig(),
-                            __("Update ready"),
-                            [__("Yes"), __("No, update later")]
-                        );
-                    }
-                }
-            })
-            .catch((e) => {
-                console.log('Unable to retrieve components.json');
-            });
 
-            return [ localResult, (shouldDownloadFn(localResult)) ? resourcesDirectory : url ];
-        } catch (e) {
-            remoteResult = await getRemoteConfig();
+                    if (remoteResult.cachebust !== localResult.cachebust) {
+                        if (onAppUpdateAvailableFn) {
+                            onAppUpdateAvailableFn(updateConfig);
+                        } else {
+                            navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
+                                (buttonIndex) => buttonIndex === 1 && updateConfig(),
+                                __("Update ready"),
+                                [__("Yes"), __("No, update later")]
+                            );
+                        }
+                    }
+                }).catch((e) => {
+                    console.log('Unable to retrieve components.json');
+                });
+
+                return [ localResult, resourcesDirectory];
+            } catch (e) {
+                let remoteResult = await getRemoteConfig();
+
+                await synchronizePackage(sourceUri, destinationUri);
+                return [ remoteResult, resourcesDirectory ];
+            }
+        } else {
+            let remoteResult = await getRemoteConfig();
+
             if (shouldDownloadFn(remoteResult)) {
                 await synchronizePackage(sourceUri, destinationUri);
                 return [ remoteResult, resourcesDirectory ];
             } else {
-                writeFile(resourcesDirectory, 'components.json', JSON.stringify(remoteResult));
                 return [ remoteResult, url ];
             }
         }
     };
-
-    let writeFile = (directory, fileName, content, successCallback) => {
-        window.resolveLocalFileSystemURL(directory, (dirEntry) => {
-            console.log('file system open: ' + dirEntry.name);
-            dirEntry.getFile(fileName, {create: true, exclusive: false}, (fileEntry) => {
-
-                fileEntry.createWriter((fileWriter) => {
-                    fileWriter.onwriteend = () => {
-                        console.log("Successful file write! filePath : " + fileEntry.fullPath);
-                        successCallback && successCallback();
-                    };
-
-                    fileWriter.onerror = (e) => {
-                        console.log("Failed to write file. filePath : " + fileEntry.fullPath);
-                    };
-
-                    fileWriter.write(content);
-                });
-            });
-        }, (e) => {
-            console.log('writeFile error: ' + JSON.stringify(e));
-        });
-    };
-
 
     var setupDirectoryLocations = function() {
         if (cordova.wkwebview) {
@@ -738,7 +714,7 @@ module.exports = (function() {
         function syncAndStartup() {
             // TODO: Check for existing resources
 
-            synchronizeResources(appUrl, shouldDownloadFn)
+            synchronizeResources(appUrl, enableOffline, shouldDownloadFn)
                 .then(function([config, resourcesUrl]) {
                     return startup(config, resourcesUrl, appUrl, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin);
                 })
