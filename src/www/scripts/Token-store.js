@@ -15,7 +15,7 @@ module.exports = (function() {
 
     TokenStore.prototype.get = function() {
         return getNamespace().then(function(storageNamespace) {
-            return this._store.get(storageNamespace, tokenKey).caught(function() {
+            return this._store.get(storageNamespace, tokenKey).catch(function() {
                 return Promise.resolve(undefined);
             });
         }.bind(this));
@@ -23,7 +23,7 @@ module.exports = (function() {
 
     TokenStore.prototype.remove = function() {
         return getNamespace().then(function(storageNamespace) {
-            return this._store.remove(storageNamespace, tokenKey).caught(function() {
+            return this._store.remove(storageNamespace, tokenKey).catch(function() {
                 return Promise.resolve();
             });
         }.bind(this));

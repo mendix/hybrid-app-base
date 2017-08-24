@@ -11,7 +11,7 @@ module.exports = (function() {
             return Promise.all([
                 secureStore.remove(storageNamespace, pinKey),
                 clearAttemptsLeft()
-            ]).caught(function() {
+            ]).catch(function() {
                 return Promise.resolve();
             });
         });
@@ -19,7 +19,7 @@ module.exports = (function() {
 
     var setPin = function(pinValue) {
         return namespace.get().then(function(storageNamespace) {
-            return secureStore.set(storageNamespace, pinKey, pinValue).caught(function() {
+            return secureStore.set(storageNamespace, pinKey, pinValue).catch(function() {
                 return Promise.resolve();
             });
         });
@@ -27,7 +27,7 @@ module.exports = (function() {
 
     var getPin = function() {
         return namespace.get().then(function(storageNamespace) {
-            return secureStore.get(storageNamespace, pinKey).caught(function() {
+            return secureStore.get(storageNamespace, pinKey).catch(function() {
                 return Promise.resolve(undefined);
             });
         });
@@ -38,7 +38,7 @@ module.exports = (function() {
             return secureStore.get(storageNamespace, "mx-pin-attempts-left").then(function(strAttemptsLeft) {
                 return Number(strAttemptsLeft);
             });
-        }).caught(function() {
+        }).catch(function() {
             return Promise.resolve(3);
         });
     };
@@ -51,7 +51,7 @@ module.exports = (function() {
 
     var clearAttemptsLeft = function() {
         return namespace.get().then(function(storageNamespace) {
-            return secureStore.remove(storageNamespace, "mx-pin-attempts-left").caught(function() {
+            return secureStore.remove(storageNamespace, "mx-pin-attempts-left").catch(function() {
                 return Promise.resolve();
             });
         });

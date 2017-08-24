@@ -527,7 +527,7 @@ module.exports = (function() {
         }
 
         function handleFailedDownload(e) {
-            return getLocalConfig().caught(function(e) {
+            return getLocalConfig().catch(function(e) {
                 throw new UserVisibleError(
                     __("Could not synchronize with server. Make sure your app has an offline profile enabled when running in offline mode.")
                 );
