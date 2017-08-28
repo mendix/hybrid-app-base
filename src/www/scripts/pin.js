@@ -1,6 +1,5 @@
 "use strict";
 
-var BPromise = require("bluebird");
 var secureStore = require("./secure-store");
 var namespace = require("./namespace");
 
@@ -9,27 +8,27 @@ var pinKey = "pin";
 module.exports = (function() {
     var removePin = function() {
         return namespace.get().then(function(storageNamespace) {
-            return BPromise.all([
+            return Promise.all([
                 secureStore.remove(storageNamespace, pinKey),
                 clearAttemptsLeft()
-            ]).caught(function() {
-                return BPromise.resolve();
+            ]).catch(function() {
+                return Promise.resolve();
             });
         });
     };
 
     var setPin = function(pinValue) {
         return namespace.get().then(function(storageNamespace) {
-            return secureStore.set(storageNamespace, pinKey, pinValue).caught(function() {
-                return BPromise.resolve();
+            return secureStore.set(storageNamespace, pinKey, pinValue).catch(function() {
+                return Promise.resolve();
             });
         });
     };
 
     var getPin = function() {
         return namespace.get().then(function(storageNamespace) {
-            return secureStore.get(storageNamespace, pinKey).caught(function() {
-                return BPromise.resolve(undefined);
+            return secureStore.get(storageNamespace, pinKey).catch(function() {
+                return Promise.resolve(undefined);
             });
         });
     };
@@ -39,8 +38,8 @@ module.exports = (function() {
             return secureStore.get(storageNamespace, "mx-pin-attempts-left").then(function(strAttemptsLeft) {
                 return Number(strAttemptsLeft);
             });
-        }).caught(function() {
-            return BPromise.resolve(3);
+        }).catch(function() {
+            return Promise.resolve(3);
         });
     };
 
@@ -52,8 +51,8 @@ module.exports = (function() {
 
     var clearAttemptsLeft = function() {
         return namespace.get().then(function(storageNamespace) {
-            return secureStore.remove(storageNamespace, "mx-pin-attempts-left").caught(function() {
-                return BPromise.resolve();
+            return secureStore.remove(storageNamespace, "mx-pin-attempts-left").catch(function() {
+                return Promise.resolve();
             });
         });
     };
@@ -65,7 +64,7 @@ module.exports = (function() {
             } else {
                 return getAttemptsLeft().then(function(attemptsLeft) {
                     return setAttemptsLeft(--attemptsLeft).then(function() {
-                        return BPromise.reject(new Error(__("Invalid PIN")));
+                        return Promise.reject(new Error(__("Invalid PIN")));
                     });
                 });
             }

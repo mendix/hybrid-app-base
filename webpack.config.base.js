@@ -37,7 +37,7 @@ module.exports = function(env) {
             path: path.resolve("build"),
             filename: "www/js/bundle.js"
         },
-        devtool: "cheap-module-eval-source-map",
+        devtool: "eval-source-map",
         module: {
             // Rules are used to process specific file types
             rules: [
@@ -51,6 +51,22 @@ module.exports = function(env) {
                         fallback: "style-loader",
                         use: "css-loader"
                     })
+                },
+                {
+                    test: /\.js$/,
+                    exclude: /node_modules\/(?!(mendix-hybrid-app-base)\/).*/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: [['env', {
+                                "targets": {
+                                    "uglify": true
+                                }
+                            }]],
+                            plugins: ["transform-regenerator"],
+                            cacheDirectory: true
+                        }
+                    }
                 }
             ]
         },

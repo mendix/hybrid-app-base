@@ -1,6 +1,5 @@
 "use strict";
 
-var BPromise = require("bluebird");
 var pin = require("./pin");
 var secureStore = require("./secure-store");
 var TokenStore = require("./Token-store");
@@ -43,7 +42,7 @@ module.exports = (function() {
         }
 
         function forgetPinAction() {
-            BPromise.all([
+            Promise.all([
                 tokenStore.remove(),
                 pin.remove()
             ]).then(closeView);

@@ -70,13 +70,21 @@ module.exports = function(env) {
     });
 
     if (!settings.options.debug) {
-        config.devtool = "source-map";
+        config = webpack_merge(config, {
+            devtool: "source-map",
 
-        config.plugins.push(
-            new UglifyJSPlugin({
-                sourceMap: true
-            })
-        )
+            plugins: [
+                new webpack.optimize.UglifyJsPlugin({
+                    sourceMap: true,
+                    ecma: 5,
+                    toplevel: true,
+                    extractComments: true, parallel: {
+                        cache: true,
+                        workers: 2 // for e.g
+                    }
+                })
+            ]
+        })
     }
 
     return config;

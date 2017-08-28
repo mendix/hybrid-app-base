@@ -19,5 +19,9 @@
   "Updating app": "Updating app",
   "Updating app...": "Updating app...",
   "Verify your PIN": "Verify your PIN",
-  "You have one more attempt": "You have one more attempt"
+  "You have one more attempt": "You have one more attempt",
+  "An update is ready. Do you want to download it? (this may take a few moments)": "An update is ready. Do you want to download it? (this may take a few moments)",
+  "Update ready": "Update ready",
+  "Yes": "Yes",
+  "No, update later": "No, update later"
 }

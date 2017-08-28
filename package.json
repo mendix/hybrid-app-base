@@ -3,7 +3,16 @@
   "version": "1.1.2",
   "description": "Mendix PhoneGap Build base package",
   "scripts": {
-    "appbase": "webpack --config ./webpack.config.appbase.js"
+    "appbase": "./node_modules/webpack/bin/webpack --config ./webpack.config.appbase.js",
+    "pgpackage": "node ./node_modules/webpack/bin/webpack",
+    "pgwatch": "node ./node_modules/webpack/bin/webpack --watch",
+    "pgplatform": "cd build && phonegap platforms",
+    "pgplugin": "cd build && phonegap plugin",
+    "pgprepare": "cd build && phonegap prepare",
+    "pgcompile": "cd build && phonegap compile",
+    "pgbuild": "cd build && phonegap build",
+    "pgrun": "cd build && phonegap run",
+    "pgremote": "cd build && phonegap remote run"
   },
   "main": "src/www/scripts/entry.js",
   "directories": {
@@ -17,7 +26,11 @@
     "README.md"
   ],
   "dependencies": {
-    "bluebird": "^2.9.27",
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-plugin-transform-regenerator": "^6.24.1",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
     "clean-webpack-plugin": "^0.1.16",
     "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.26.4",
@@ -29,8 +42,7 @@
     "sanitize-filename": "^1.6.1",
     "style-loader": "^0.13.2",
     "tiny-emitter": "^1.1.0",
-    "uglifyjs-webpack-plugin": "^0.3.0",
-    "webpack": "^2.2.1",
+    "webpack": "^3.0.0",
     "webpack-archive-plugin": "^3.0.0",
     "webpack-merge": "^4.1.0"
   },

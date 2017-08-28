@@ -1,12 +1,11 @@
 "use strict";
 
-var BPromise = require("bluebird");
 var namespacePromises = {};
 
 module.exports = (function() {
     var getStorage = function(namespace) {
         if (!namespacePromises[namespace]) {
-            namespacePromises[namespace] = new BPromise(function (resolve, reject) {
+            namespacePromises[namespace] = new Promise(function (resolve, reject) {
                 var storage = new cordova.plugins.SecureStorage(function () {
                     resolve(storage);
                 }, reject, namespace);
@@ -18,7 +17,7 @@ module.exports = (function() {
 
     var remove = function(namespace, key) {
         return getStorage(namespace).then(function (storage) {
-            return new BPromise(function (resolve, reject) {
+            return new Promise(function (resolve, reject) {
                 storage.remove(resolve, reject, key);
             });
         });
@@ -26,7 +25,7 @@ module.exports = (function() {
 
     var set = function(namespace, key, value) {
         return getStorage(namespace).then(function (storage) {
-            return new BPromise(function (resolve, reject) {
+            return new Promise(function (resolve, reject) {
                 storage.set(resolve, reject, key, value);
             });
         });
@@ -34,7 +33,7 @@ module.exports = (function() {
 
     var get = function(namespace, key) {
         return getStorage(namespace).then(function (storage) {
-            return new BPromise(function (resolve, reject) {
+            return new Promise(function (resolve, reject) {
                 storage.get(resolve, reject, key);
             });
         });
