@@ -154,7 +154,7 @@ module.exports = (function() {
             var next = target;
             while (next = next.nextElementSibling) {
                 if (next.tagName.toLowerCase() === "input") {
-                    switchKeyboard(next, "number");
+                    switchKeyboard(next, "tel");
                     next.focus();
                     break;
                 }
@@ -174,7 +174,7 @@ module.exports = (function() {
                 break;
             }
             if (prev.tagName.toLowerCase() === "input") {
-                switchKeyboard(prev, "number");
+                switchKeyboard(prev, "tel");
                 prev.focus();
                 break;
             }
@@ -203,7 +203,7 @@ module.exports = (function() {
 
     var switchToNumericKeyboard = function(e) {
         e.target.value = "";
-        switchKeyboard(e.target, "number");
+        switchKeyboard(e.target, "tel");
     };
 
     var cleanUserInput = function() {
