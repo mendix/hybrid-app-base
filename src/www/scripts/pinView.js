@@ -44,7 +44,10 @@ module.exports = (function() {
         function forgetPinAction() {
             Promise.all([
                 tokenStore.remove(),
-                pin.remove()
+                pin.remove(),
+                new Promise(function(resolve) {
+                    window.cookies.clear(resolve);
+                })
             ]).then(closeView);
         }
 
