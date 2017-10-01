@@ -1,86 +1,77 @@
 "use strict";
 
-var secureStore = require("./secure-store");
-var namespace = require("./namespace");
+import * as SecureStore from "./secure-store";
+import * as Namespace from "./namespace";
 
-var pinKey = "pin";
+const PINKEY = "mx-pin";
+const PINATTEMPTSLEFTKEY = "mx-pin-attempts-left";
 
-module.exports = (function() {
-    var removePin = function() {
-        return namespace.get().then(function(storageNamespace) {
-            return Promise.all([
-                secureStore.remove(storageNamespace, pinKey),
-                clearAttemptsLeft()
-            ]).catch(function() {
-                return Promise.resolve();
-            });
-        });
-    };
+export async function remove() {
+    const storageNamespace = await Namespace.get();
 
-    var setPin = function(pinValue) {
-        return namespace.get().then(function(storageNamespace) {
-            return secureStore.set(storageNamespace, pinKey, pinValue).catch(function() {
-                return Promise.resolve();
-            });
-        });
-    };
+    try {
+        await Promise.all([
+            SecureStore.remove(storageNamespace, PINKEY),
+            clearAttemptsLeft()
+        ])
+    } catch(e) {}
+}
 
-    var getPin = function() {
-        return namespace.get().then(function(storageNamespace) {
-            return secureStore.get(storageNamespace, pinKey).catch(function() {
-                return Promise.resolve(undefined);
-            });
-        });
-    };
+export async function set(pinValue) {
+    const storageNamespace = await Namespace.get();
 
-    var getAttemptsLeft = function() {
-        return namespace.get().then(function(storageNamespace) {
-            return secureStore.get(storageNamespace, "mx-pin-attempts-left").then(function(strAttemptsLeft) {
-                return Number(strAttemptsLeft);
-            });
-        }).catch(function() {
-            return Promise.resolve(3);
-        });
-    };
+    try {
+        await SecureStore.set(storageNamespace, PINKEY, pinValue);
+    } catch(e) {}
+}
 
-    var setAttemptsLeft = function(attempts) {
-        return namespace.get().then(function(storageNamespace) {
-            return secureStore.set(storageNamespace, "mx-pin-attempts-left", attempts.toString());
-        });
-    };
+export async function get() {
+    const storageNamespace = await Namespace.get();
 
-    var clearAttemptsLeft = function() {
-        return namespace.get().then(function(storageNamespace) {
-            return secureStore.remove(storageNamespace, "mx-pin-attempts-left").catch(function() {
-                return Promise.resolve();
-            });
-        });
-    };
-
-    var verify = function(enteredPin) {
-        return getPin().then(function(storedPin) {
-            if (enteredPin === storedPin) {
-                return clearAttemptsLeft();
-            } else {
-                return getAttemptsLeft().then(function(attemptsLeft) {
-                    return setAttemptsLeft(--attemptsLeft).then(function() {
-                        return Promise.reject(new Error(__("Invalid PIN")));
-                    });
-                });
-            }
-        });
-    };
-
-    var isValid = function(pin) {
-        return /^[0-9]{5}$/.test(pin);
-    };
-
-    return {
-        set: setPin,
-        get: getPin,
-        remove: removePin,
-        getAttemptsLeft: getAttemptsLeft,
-        verify: verify,
-        isValid: isValid
+    try {
+        return await SecureStore.get(storageNamespace, PINKEY);
+    } catch(e) {
+        return undefined;
     }
-})();
+}
+
+export async function getAttemptsLeft() {
+    const storageNamespace = await Namespace.get();
+
+    try {
+        const strAttemptsLeft = await SecureStore.get(storageNamespace, PINATTEMPTSLEFTKEY);
+        return Number(strAttemptsLeft);
+    } catch(e) {
+        return 3;
+    }
+}
+
+async function setAttemptsLeft(attempts) {
+    const storageNamespace = await Namespace.get();
+
+    await SecureStore.set(storageNamespace, PINATTEMPTSLEFTKEY, attempts.toString());
+}
+
+async function clearAttemptsLeft() {
+    const storageNamespace = await Namespace.get();
+
+    try {
+        await SecureStore.remove(storageNamespace, PINATTEMPTSLEFTKEY);
+    } catch(e) {}
+}
+
+export async function verify(enteredPin) {
+    const storedPin = await get();
+
+    if (enteredPin === storedPin) {
+        await clearAttemptsLeft();
+    } else {
+        const attemptsLeft = await getAttemptsLeft();
+        await setAttemptsLeft(attemptsLeft-1);
+        throw new Error(__("Invalid PIN"));
+    }
+}
+
+export function isValid(pin) {
+    return /^[0-9]{5}$/.test(pin);
+}

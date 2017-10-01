@@ -1,3 +1,5 @@
+.DS_Store
+yalc.lock
 /node_modules
 /dist
 /build
