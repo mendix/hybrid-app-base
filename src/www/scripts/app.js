@@ -674,7 +674,9 @@ module.exports = (function() {
             };
 
             var cleanUpTokensFn = function() {
-                return Promise
+                return new Promise(function(resolve) {
+                        window.cookies.clear(resolve);
+                    })
                     .all([tokenStore.remove(), pin.remove()])
                     .catch(function() {
                         console.info("Could not clean tokenStore and PIN; maybe they were already removed.");
@@ -695,18 +697,20 @@ module.exports = (function() {
                             if (token && storedPin) {
                                 pinView.verify(resolve);
                             } else {
-                                return cleanUpTokensFn()
-                                    .then(resolve);
+                                return cleanUpTokensFn().then(resolve);
                             }
+                        })
+                        .catch(function() {
+                            cleanUpTokensFn().then(resolve);
                         });
                 } else {
                     resolve();
                 }
             })
-                .catch(function(e) {
-                    return handleError(e);
-                })
-                .then(syncAndStartup);
+            .catch(function(e) {
+                return handleError(e);
+            })
+            .then(syncAndStartup);
         } catch (e) {
             handleError(e);
         }
