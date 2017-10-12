@@ -677,7 +677,7 @@ module.exports = (function() {
                 return new Promise(function(resolve) {
                         window.cookies.clear(resolve);
                     })
-                    .all([tokenStore.remove(), pin.remove()])
+                    .then(() => Promise.all([tokenStore.remove(), pin.remove()]))
                     .catch(function() {
                         console.info("Could not clean tokenStore and PIN; maybe they were already removed.");
                     });
