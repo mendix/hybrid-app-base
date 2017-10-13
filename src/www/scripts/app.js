@@ -675,12 +675,16 @@ module.exports = (function() {
 
             var cleanUpTokensFn = function() {
                 return new Promise(function(resolve) {
-                        window.cookies.clear(resolve);
-                    })
-                    .then(() => Promise.all([tokenStore.remove(), pin.remove()]))
-                    .catch(function() {
-                        console.info("Could not clean tokenStore and PIN; maybe they were already removed.");
-                    });
+                    Promise
+                        .all([tokenStore.remove(), pin.remove()])
+                        .then(function() {
+                            window.cookies.clear();
+                        })
+                        .catch(function () {
+                            console.info("Could not clean tokenStore and PIN; maybe they were already removed.");
+                        })
+                        .then(resolve);
+                });
             };
 
             new Promise(function(resolve, reject) {
