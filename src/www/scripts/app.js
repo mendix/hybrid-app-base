@@ -145,7 +145,7 @@ module.exports = (function() {
         }
     };
 
-    var _startup = function(config, url, appUrl, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin) {
+    var _startup = function(config, url, appUrl, enableOffline, requirePin) {
         return new Promise(function(resolve, reject) {
             window.dojoConfig = {
                 appbase: url,
@@ -153,8 +153,6 @@ module.exports = (function() {
                 baseUrl: url + "mxclientsystem/dojo/",
                 async: true,
                 cacheBust: config.cachebust,
-                hybridTabletProfile: hybridTabletProfile,
-                hybridPhoneProfile: hybridPhoneProfile,
                 server: {
                     timeout: 5000
                 },
@@ -261,9 +259,7 @@ module.exports = (function() {
                 }
             };
 
-            if (hybridPhoneProfile === "" && hybridTabletProfile === "") {
-                window.dojoConfig.offline = enableOffline;
-            }
+            window.dojoConfig.offline = enableOffline;
 
             if (cordova.platformId === "android") {
                 window.dojoConfig.ui.openUrlFn = function(url, fileName, windowName) {
@@ -654,7 +650,7 @@ module.exports = (function() {
         );
     };
 
-    var initialize = function(url, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin, username, password) {
+    var initialize = function(url, enableOffline, requirePin, username, password) {
         try {
             enableOffline = !!enableOffline;
 
@@ -724,7 +720,7 @@ module.exports = (function() {
 
             synchronizeResources(appUrl, enableOffline, shouldDownloadFn)
                 .then(function([config, resourcesUrl]) {
-                    return startup(config, resourcesUrl, appUrl, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin);
+                    return startup(config, resourcesUrl, appUrl, enableOffline, requirePin);
                 })
                 .catch(handleError);
         }
