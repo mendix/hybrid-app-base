@@ -650,101 +650,93 @@ module.exports = (function() {
         );
     };
 
-    var initialize = function(url, enableOffline, requirePin, username, password) {
-        try {
-            enableOffline = !!enableOffline;
+    var initialize = async function(url, enableOffline, requirePin, username, password) {
+        enableOffline = !!enableOffline;
 
-            // Make sure the url always ends with a /
-            appUrl = url.replace(/\/?$/, "/");
+        // Make sure the url always ends with a /
+        appUrl = url.replace(/\/?$/, "/");
 
-            replaceWindowOpenFn();
+        replaceWindowOpenFn();
 
-            document.addEventListener("backbutton", handleBackButton);
+        document.addEventListener("backbutton", handleBackButton);
 
-            setupDirectoryLocations();
+        setupDirectoryLocations();
 
-            var tokenStore = requirePin ? new TokenStore(secureStore) : new TokenStore(localStore);
+        const localTokenStore = new TokenStore(LocalStore);
+        const secureTokenStore = requirePin ? new TokenStore(SecureStore) : undefined;
 
-            var shouldDownloadFn = function(config) {
-                return config.downloadResources || enableOffline;
-            };
+        var shouldDownloadFn = function(config) {
+            return config.downloadResources || enableOffline;
+        };
 
-            var cleanUpTokensFn = function() {
-                return new Promise(function(resolve) {
-                    Promise
-                        .all([tokenStore.remove(), pin.remove()])
-                        .catch(() => {
-                            console.info("Could not clean tokenStore and PIN; maybe they were already removed.");
-                        })
-                        .then(() => {
-                            return new Promise((resolve) => {
-                                window.cookieEmperor.clearAll(resolve, resolve);
-                            })
-                        })
-                        .then(() => {
-                            return new Promise((resolve) => {
-                                if (cordova.platformId === "android") {
-                                    window.cookies.clear(resolve);
-                                } else {
-                                    resolve();
-                                }
-                            });
-                        })
-                        .then(resolve);
+        const reflect = function(promise){
+            return promise.then(function(v){ return {v:v, status: "resolved" }},
+                function(e){ return {e:e, status: "rejected" }});
+        };
+
+        const cleanUpRemains = async function() {
+            try {
+                await reflect(localTokenStore.remove());
+                await reflect(secureTokenStore.remove());
+                await reflect(Pin.remove());
+                await new Promise(function(resolve) {
+                    window.cookies.clear(resolve());
                 });
-            };
+            } catch(e) {
+                console.info("Could not clean remaining session data; maybe they were already removed: ", e ? e : "no details");
+            }
+        };
 
-            new Promise(function(resolve, reject) {
-                if (credentialsProvided(username, password)) {
-                    cleanUpTokensFn()
-                        .then(function() {
-                            return createSessionWithCredentials(appUrl, username, password);
-                        })
-                        .then(resolve, reject);
-                } else if (requirePin) {
-                    Promise
-                        .all([tokenStore.get(), pin.get()])
-                        .then(function([token, storedPin]) {
-                            if (token && storedPin) {
-                                pinView.verify(resolve);
-                            } else {
-                                return cleanUpTokensFn().then(resolve);
-                            }
-                        })
-                        .catch(function() {
-                            cleanUpTokensFn().then(resolve);
-                        });
-                } else {
-                    resolve();
-                }
-            })
-            .catch(function(e) {
-                return handleError(e);
-            })
-            .then(syncAndStartup);
-        } catch (e) {
-            handleError(e);
-        }
+        const syncAndStartup = async function() {
+            try {
+                const [config, resourcesUrl] = await synchronizeResources(appUrl, enableOffline, shouldDownloadFn);
+                await startup(config, resourcesUrl, appUrl, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin);
+            } catch(e) {
+                await handleError(e ? e : new Error("Failed to sync and startup."));
+            }
+        };
 
-        function syncAndStartup() {
-            // TODO: Check for existing resources
-
-            synchronizeResources(appUrl, enableOffline, shouldDownloadFn)
-                .then(function([config, resourcesUrl]) {
-                    return startup(config, resourcesUrl, appUrl, enableOffline, requirePin);
-                })
-                .catch(handleError);
-        }
-
-        function handleError(e) {
+        const handleError = function(e) {
             return new Promise(function(resolve) {
                 console.error(e);
                 showError(makeVisibleError(e), resolve);
             });
+        };
+
+        if (credentialsProvided(username, password)) {
+            try {
+                await cleanUpRemains();
+                await createSessionWithCredentials(appUrl, username, password);
+            } catch (e) {
+                await handleError(e ? e : new Error("Failed to create session with provided credentials."));
+
+                window.location.reload();
+            }
+        } else if (requirePin) {
+            try {
+                const token = await secureTokenStore.get();
+                const pinValue = await Pin.get();
+
+                if (token && pinValue) {
+                    await PinView.verify();
+                } else {
+                    await cleanUpRemains();
+                }
+            } catch (e) {
+                await cleanUpRemains();
+            }
+        }
+
+        try {
+            await syncAndStartup();
+        } catch(e) {
+            await handleError(e ? e : new Error("Failed to sync and startup."));
+
+            window.location.reload();
         }
     };
 
-    var createSessionWithCredentials = function(url, username, password) {
+    const createSessionWithCredentials = function(url, username, password) {
         var loginUrl = url + 'xas/';
         var attempts = 20;
 
