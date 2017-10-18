@@ -1,13 +1,13 @@
 "use strict";
 import "babel-polyfill";
 
-var Emitter = require('tiny-emitter');
-var TokenStore = require("./Token-store");
+import Emitter from 'tiny-emitter';
+import TokenStore from "./Token-store";
 
-var pin = require("./pin");
-var pinView = require("./pinView");
-var secureStore = require("./secure-store");
-var localStore = require("./local-store");
+import Pin from "./pin";
+import * as PinView from "./pinView";
+import SecureStore from "./secure-store";
+import LocalStore from "./local-store";
 
 function requireAll(requireContext) {
     return requireContext.keys().map(requireContext);
@@ -126,7 +126,7 @@ module.exports = (function() {
     };
 
     var createTokenStore = function(requirePin){
-        var tokenStore = new TokenStore(requirePin ? secureStore : localStore);
+        var tokenStore = new TokenStore(requirePin ? SecureStore : LocalStore);
 
         return {
             set: function(token, callback) {
@@ -543,7 +543,7 @@ module.exports = (function() {
                 let localResult = await getLocalConfig();
 
                 getRemoteConfig().then((remoteResult) => {
-                    let updateConfig = async (buttonIndex) => {
+                    let updateConfig = async () => {
                         await synchronizePackage(sourceUri, destinationUri);
                         window.location.reload();
                     }
@@ -690,7 +690,7 @@ module.exports = (function() {
         const syncAndStartup = async function() {
             try {
                 const [config, resourcesUrl] = await synchronizeResources(appUrl, enableOffline, shouldDownloadFn);
-                await startup(config, resourcesUrl, appUrl, hybridTabletProfile, hybridPhoneProfile, enableOffline, requirePin);
+                await startup(config, resourcesUrl, appUrl, enableOffline, requirePin);
             } catch(e) {
                 await handleError(e ? e : new Error("Failed to sync and startup."));
             }
