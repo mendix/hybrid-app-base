@@ -233,8 +233,8 @@ module.exports = (function() {
 
                     if (requirePin) {
                         var configureAndConfirm = function(message) {
-                            pinView.configure(message, function(enteredPin) {
-                                pinView.confirm(enteredPin, startClient, function() {
+                            PinView.configure(message, function(enteredPin) {
+                                PinView.confirm(enteredPin, startClient, function() {
                                     configureAndConfirm(__("PIN did not match. Try again!"));
                                 });
                             });
