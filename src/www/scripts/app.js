@@ -232,6 +232,8 @@ module.exports = (function() {
                      */
 
                     if (requirePin) {
+                        replaceEventHandler("backbutton", handleBackButtonForAppWithPin, handleBackButton);
+
                         var configureAndConfirm = function(message) {
                             PinView.configure(message, function(enteredPin) {
                                 PinView.confirm(enteredPin, startClient, function() {
@@ -246,6 +248,10 @@ module.exports = (function() {
                     }
 
                     function startClient() {
+                        if (requirePin) {
+                            replaceEventHandler("backbutton", handleBackButton, handleBackButtonForAppWithPin);
+                        }
+
                         window.mx.isLoaded() ? window.mx.reload() : window.mx.startup();
                     }
                 },
@@ -315,7 +321,12 @@ module.exports = (function() {
                     removeSelf();
                 }
                 addStylesheets(url, config.cachebust, config.files.css);
-                replaceEventHandler("backbutton", handleBackButton, handleBackButtonForApp);
+
+                if (requirePin) {
+                    replaceEventHandler("backbutton", handleBackButton, handleBackButtonForAppWithPin);
+                } else {
+                    replaceEventHandler("backbutton", handleBackButton, handleBackButtonForApp);
+                }
 
                 emitter.emit("onClientReady", window.mx);
 
@@ -619,6 +630,17 @@ module.exports = (function() {
             window.mx.session.logout(function() {
                 navigator.app.exitApp();
             });
+        }
+    };
+
+    var handleBackButtonForAppWithPin = function(e) {
+        if (!window.mx.ui.canMoveBack) {
+            // For legacy Mendix versions
+            window.history.back();
+        } else if (window.mx.ui.canMoveBack()) {
+            window.history.back();
+        } else {
+            navigator.app.exitApp();
         }
     };
 
