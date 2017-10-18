@@ -673,11 +673,22 @@ module.exports = (function() {
                 return new Promise(function(resolve) {
                     Promise
                         .all([tokenStore.remove(), pin.remove()])
-                        .then(function() {
-                            window.cookies.clear();
-                        })
-                        .catch(function () {
+                        .catch(() => {
                             console.info("Could not clean tokenStore and PIN; maybe they were already removed.");
+                        })
+                        .then(() => {
+                            return new Promise((resolve) => {
+                                window.cookieEmperor.clearAll(resolve, resolve);
+                            })
+                        })
+                        .then(() => {
+                            return new Promise((resolve) => {
+                                if (cordova.platformId === "android") {
+                                    window.cookies.clear(resolve);
+                                } else {
+                                    resolve();
+                                }
+                            });
                         })
                         .then(resolve);
                 });

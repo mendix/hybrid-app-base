@@ -30,6 +30,7 @@
     <plugin name="cordova-plugin-app-version" source="npm" spec="0.1.8" />
     <plugin name="cordova-plugin-battery-status" source="npm" spec="1.1.2" />
     <plugin name="cordova-plugin-console" source="npm" spec="1.0.3" />
+    <plugin name="cordova-plugin-cookieemperor" spec="https://github.com/rtk/cordova-cookie-emperor.git" />
     <plugin name="cordova-plugin-device" source="npm" spec="1.1.2" />
     <plugin name="cordova-plugin-device-motion" source="npm" spec="1.2.1" />
     <plugin name="cordova-plugin-device-orientation" source="npm" spec="1.0.3" />
@@ -47,7 +48,6 @@
     <plugin name="cordova-plugin-x-socialsharing" source="npm" version="5.0.11"/>
     <plugin name="cordova-plugin-zip" source="npm" spec="3.1.0" />
     <plugin name="cordova-plugin-whitelist" source="npm" spec="1.2.2" />
-    <plugin name="cordova-remove-cookies" source="npm" spec="0.0.2"/>
     <plugin name="cordova-sqlite-storage-pgb" source="git" spec="https://github.com/mendix/Cordova-sqlite-storage-pgb.git#storage-master" />
     <plugin name="phonegap-plugin-push" source="npm" spec="1.5.3" />
     <plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm" version="2.9.11"/>
@@ -147,6 +147,11 @@
         {{/options.architecture}}
 
         <plugin name="cordova-plugin-crosswalk-webview" source="npm" spec="2.3.0" />
+
+        <!-- This plugin should be removed if the project does not use Crosswalk -->
+        <plugin name="com.crosswalk.cookies" spec="https://github.com/dokoto/crosswalk-cookies.git" />
+        <!-- -->
+
         <plugin name="cordova-plugin-whitelist" source="npm" spec="1.2.2" />
         <plugin name="cordova-plugin-android-permissions" source="npm" version="0.10.0" />
 
