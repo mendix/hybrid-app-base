@@ -130,16 +130,20 @@ module.exports = (function() {
 
         return {
             set: function(token, callback) {
+                console.log("Setting TOKEN " + token);
                 tokenStore.set(token).then(callback, callback);
             },
             get: function(callback) {
+                console.log("Getting TOKEN:");
                 tokenStore.get().then(function(token) {
+                    console.log("Got TOKEN " + token);
                     if (callback) callback(token);
                 }, function(e) {
                     if (callback) callback(undefined);
                 });
             },
             remove: function(callback) {
+                console.log("Removing TOKEN");
                 tokenStore.remove().then(callback, callback);
             }
         }
@@ -232,6 +236,8 @@ module.exports = (function() {
                      */
 
                     if (requirePin) {
+                        console.info("Setting up a pin");
+
                         replaceEventHandler("backbutton", handleBackButtonForAppWithPin, handleBackButton);
 
                         var configureAndConfirm = function(message) {
@@ -248,6 +254,8 @@ module.exports = (function() {
                     }
 
                     function startClient() {
+                        console.info("Starting the client");
+
                         if (requirePin) {
                             replaceEventHandler("backbutton", handleBackButton, handleBackButtonForAppWithPin);
                         }
@@ -256,6 +264,8 @@ module.exports = (function() {
                     }
                 },
                 afterNavigationFn: function() {
+                    console.info("Running afterNavigation function");
+
                     /*
                      * If defined, this function is invoked in onNavigation method,
                      * called as the last action during the startup. Lines below handle
@@ -698,24 +708,59 @@ module.exports = (function() {
 
         const cleanUpRemains = async function() {
             try {
+                console.info("Will remove token in localStore");
                 await reflect(localTokenStore.remove());
+                console.info("Will remove token in secureStore");
                 await reflect(secureTokenStore.remove());
+                console.info("Will remove pin");
                 await reflect(Pin.remove());
                 await new Promise(function(resolve) {
-                    window.cookies.clear(resolve());
+                    console.info("Will remove cookies");
+                    window.cookieEmperor.clearAll(resolve, () => {
+                        console.info("Failed to clear cookies");
+                        resolve();
+                    });
                 });
+                if (cordova.platformId === "android") {
+                    await new Promise((resolve) => {
+                        console.info("Will remove Crosswalk cookies");
+                        window.cookies.clear(resolve, () => {
+                            console.info("Failed to clear Crosswalk cookies");
+                            resolve();
+                        });
+                    });
+                }
             } catch(e) {
                 console.info("Could not clean remaining session data; maybe they were already removed: ", e ? e : "no details");
             }
         };
 
         const syncAndStartup = async function() {
-            try {
-                const [config, resourcesUrl] = await synchronizeResources(appUrl, enableOffline, shouldDownloadFn);
-                await startup(config, resourcesUrl, appUrl, enableOffline, requirePin);
-            } catch(e) {
-                await handleError(e ? e : new Error("Failed to sync and startup."));
-            }
+            const [config, resourcesUrl] = await synchronizeResources(appUrl, enableOffline, shouldDownloadFn);
+            await startup(config, resourcesUrl, appUrl, enableOffline, requirePin);
+        };
+
+        const logout = function() {
+            console.info("Attempting to log out properly.");
+
+            return new Promise((resolve) => {
+                if (typeof window.mx !== 'undefined' && typeof window.mx.session !== 'undefined') {
+                    if (typeof window.mx.session.destroySession !== 'undefined') {
+                        console.info("Calling mx.session.destroySession");
+
+                        window.mx.session.destroySession(resolve);
+                    }
+                    if (typeof window.mx.session.logout !== 'undefined') {
+                        console.info("Calling mx.session.logout");
+
+                        // For legacy Mendix versions
+                        window.mx.session.logout(resolve);
+                    }
+                } else {
+                    console.info("Mx not loaded, so cannot log out");
+                    resolve();
+                }
+            });
         };
 
         const handleError = function(e) {
@@ -732,7 +777,7 @@ module.exports = (function() {
             } catch (e) {
                 await handleError(e ? e : new Error("Failed to create session with provided credentials."));
 
-                window.location.reload();
+                window.location.reload(true);
             }
         } else if (requirePin) {
             try {
@@ -741,20 +786,36 @@ module.exports = (function() {
 
                 if (token && pinValue) {
                     await PinView.verify();
+
+                    console.info("Successfully verified pin");
                 } else {
+                    console.info("No pin and/or token");
+
+                    await logout();
                     await cleanUpRemains();
                 }
             } catch (e) {
+                console.info("Failed to verify pin");
+                await handleError(e ? e : new Error("Removing pin and reloading."));
+
+                await logout();
                 await cleanUpRemains();
             }
         }
 
         try {
+            console.info("Syncing and starting up");
+
             await syncAndStartup();
         } catch(e) {
+            console.info("Failed to sync and startup");
+
             await handleError(e ? e : new Error("Failed to sync and startup."));
 
-            window.location.reload();
+            await logout();
+            await cleanUpRemains();
+
+            window.location.reload(true);
         }
     };
 
