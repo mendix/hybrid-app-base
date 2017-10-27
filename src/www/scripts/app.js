@@ -1,13 +1,13 @@
 "use strict";
 import "babel-polyfill";
 
-var Emitter = require('tiny-emitter');
-var TokenStore = require("./Token-store");
+import Emitter from 'tiny-emitter';
+import TokenStore from "./Token-store";
 
-var pin = require("./pin");
-var pinView = require("./pinView");
-var secureStore = require("./secure-store");
-var localStore = require("./local-store");
+import Pin from "./pin";
+import * as PinView from "./pinView";
+import SecureStore from "./secure-store";
+import LocalStore from "./local-store";
 
 function requireAll(requireContext) {
     return requireContext.keys().map(requireContext);
@@ -126,20 +126,24 @@ module.exports = (function() {
     };
 
     var createTokenStore = function(requirePin){
-        var tokenStore = new TokenStore(requirePin ? secureStore : localStore);
+        var tokenStore = new TokenStore(requirePin ? SecureStore : LocalStore);
 
         return {
             set: function(token, callback) {
+                console.log("Setting TOKEN " + token);
                 tokenStore.set(token).then(callback, callback);
             },
             get: function(callback) {
+                console.log("Getting TOKEN:");
                 tokenStore.get().then(function(token) {
+                    console.log("Got TOKEN " + token);
                     if (callback) callback(token);
                 }, function(e) {
                     if (callback) callback(undefined);
                 });
             },
             remove: function(callback) {
+                console.log("Removing TOKEN");
                 tokenStore.remove().then(callback, callback);
             }
         }
@@ -232,9 +236,13 @@ module.exports = (function() {
                      */
 
                     if (requirePin) {
+                        console.info("Setting up a pin");
+
+                        replaceEventHandler("backbutton", handleBackButtonForAppWithPin, handleBackButton);
+
                         var configureAndConfirm = function(message) {
-                            pinView.configure(message, function(enteredPin) {
-                                pinView.confirm(enteredPin, startClient, function() {
+                            PinView.configure(message, function(enteredPin) {
+                                PinView.confirm(enteredPin, startClient, function() {
                                     configureAndConfirm(__("PIN did not match. Try again!"));
                                 });
                             });
@@ -246,10 +254,18 @@ module.exports = (function() {
                     }
 
                     function startClient() {
+                        console.info("Starting the client");
+
+                        if (requirePin) {
+                            replaceEventHandler("backbutton", handleBackButton, handleBackButtonForAppWithPin);
+                        }
+
                         window.mx.isLoaded() ? window.mx.reload() : window.mx.startup();
                     }
                 },
                 afterNavigationFn: function() {
+                    console.info("Running afterNavigation function");
+
                     /*
                      * If defined, this function is invoked in onNavigation method,
                      * called as the last action during the startup. Lines below handle
@@ -315,7 +331,12 @@ module.exports = (function() {
                     removeSelf();
                 }
                 addStylesheets(url, config.cachebust, config.files.css);
-                replaceEventHandler("backbutton", handleBackButton, handleBackButtonForApp);
+
+                if (requirePin) {
+                    replaceEventHandler("backbutton", handleBackButton, handleBackButtonForAppWithPin);
+                } else {
+                    replaceEventHandler("backbutton", handleBackButton, handleBackButtonForApp);
+                }
 
                 emitter.emit("onClientReady", window.mx);
 
@@ -543,7 +564,7 @@ module.exports = (function() {
                 let localResult = await getLocalConfig();
 
                 getRemoteConfig().then((remoteResult) => {
-                    let updateConfig = async (buttonIndex) => {
+                    let updateConfig = async () => {
                         await synchronizePackage(sourceUri, destinationUri);
                         window.location.reload();
                     }
@@ -622,6 +643,17 @@ module.exports = (function() {
         }
     };
 
+    var handleBackButtonForAppWithPin = function(e) {
+        if (!window.mx.ui.canMoveBack) {
+            // For legacy Mendix versions
+            window.history.back();
+        } else if (window.mx.ui.canMoveBack()) {
+            window.history.back();
+        } else {
+            navigator.app.exitApp();
+        }
+    };
+
     var replaceEventHandler = function(eventType, oldHandler, newHandler) {
         if (oldHandler) document.removeEventListener(eventType, oldHandler);
         if (newHandler) document.addEventListener(eventType, newHandler);
@@ -650,90 +682,144 @@ module.exports = (function() {
         );
     };
 
-    var initialize = function(url, enableOffline, requirePin, username, password) {
-        try {
-            enableOffline = !!enableOffline;
+    var initialize = async function(url, enableOffline, requirePin, username, password) {
+        enableOffline = !!enableOffline;
 
-            // Make sure the url always ends with a /
-            appUrl = url.replace(/\/?$/, "/");
+        // Make sure the url always ends with a /
+        appUrl = url.replace(/\/?$/, "/");
 
-            replaceWindowOpenFn();
+        replaceWindowOpenFn();
 
-            document.addEventListener("backbutton", handleBackButton);
+        document.addEventListener("backbutton", handleBackButton);
 
-            setupDirectoryLocations();
+        setupDirectoryLocations();
 
-            var tokenStore = requirePin ? new TokenStore(secureStore) : new TokenStore(localStore);
+        const localTokenStore = new TokenStore(LocalStore);
+        const secureTokenStore = requirePin ? new TokenStore(SecureStore) : undefined;
 
-            var shouldDownloadFn = function(config) {
-                return config.downloadResources || enableOffline;
-            };
+        var shouldDownloadFn = function(config) {
+            return config.downloadResources || enableOffline;
+        };
 
-            var cleanUpTokensFn = function() {
-                return new Promise(function(resolve) {
-                    Promise
-                        .all([tokenStore.remove(), pin.remove()])
-                        .then(function() {
-                            window.cookies.clear();
-                        })
-                        .catch(function () {
-                            console.info("Could not clean tokenStore and PIN; maybe they were already removed.");
-                        })
-                        .then(resolve);
+        const reflect = function(promise){
+            return promise.then(function(v){ return {v:v, status: "resolved" }},
+                function(e){ return {e:e, status: "rejected" }});
+        };
+
+        const cleanUpRemains = async function() {
+            try {
+                console.info("Will remove token in localStore");
+                await reflect(localTokenStore.remove());
+                console.info("Will remove token in secureStore");
+                await reflect(secureTokenStore.remove());
+                console.info("Will remove pin");
+                await reflect(Pin.remove());
+                await new Promise(function(resolve) {
+                    console.info("Will remove cookies");
+                    window.cookieEmperor.clearAll(resolve, () => {
+                        console.info("Failed to clear cookies");
+                        resolve();
+                    });
                 });
-            };
-
-            new Promise(function(resolve, reject) {
-                if (credentialsProvided(username, password)) {
-                    cleanUpTokensFn()
-                        .then(function() {
-                            return createSessionWithCredentials(appUrl, username, password);
-                        })
-                        .then(resolve, reject);
-                } else if (requirePin) {
-                    Promise
-                        .all([tokenStore.get(), pin.get()])
-                        .then(function([token, storedPin]) {
-                            if (token && storedPin) {
-                                pinView.verify(resolve);
-                            } else {
-                                return cleanUpTokensFn().then(resolve);
-                            }
-                        })
-                        .catch(function() {
-                            cleanUpTokensFn().then(resolve);
+                if (cordova.platformId === "android") {
+                    await new Promise((resolve) => {
+                        console.info("Will remove Crosswalk cookies");
+                        window.cookies.clear(resolve, () => {
+                            console.info("Failed to clear Crosswalk cookies");
+                            resolve();
                         });
+                    });
+                }
+            } catch(e) {
+                console.info("Could not clean remaining session data; maybe they were already removed: ", e ? e : "no details");
+            }
+        };
+
+        const syncAndStartup = async function() {
+            const [config, resourcesUrl] = await synchronizeResources(appUrl, enableOffline, shouldDownloadFn);
+            await startup(config, resourcesUrl, appUrl, enableOffline, requirePin);
+        };
+
+        const logout = function() {
+            console.info("Attempting to log out properly.");
+
+            return new Promise((resolve) => {
+                if (typeof window.mx !== 'undefined' && typeof window.mx.session !== 'undefined') {
+                    if (typeof window.mx.session.destroySession !== 'undefined') {
+                        console.info("Calling mx.session.destroySession");
+
+                        window.mx.session.destroySession(resolve);
+                    }
+                    if (typeof window.mx.session.logout !== 'undefined') {
+                        console.info("Calling mx.session.logout");
+
+                        // For legacy Mendix versions
+                        window.mx.session.logout(resolve);
+                    }
                 } else {
+                    console.info("Mx not loaded, so cannot log out");
                     resolve();
                 }
-            })
-            .catch(function(e) {
-                return handleError(e);
-            })
-            .then(syncAndStartup);
-        } catch (e) {
-            handleError(e);
-        }
+            });
+        };
 
-        function syncAndStartup() {
-            // TODO: Check for existing resources
-
-            synchronizeResources(appUrl, enableOffline, shouldDownloadFn)
-                .then(function([config, resourcesUrl]) {
-                    return startup(config, resourcesUrl, appUrl, enableOffline, requirePin);
-                })
-                .catch(handleError);
-        }
-
-        function handleError(e) {
+        const handleError = function(e) {
             return new Promise(function(resolve) {
                 console.error(e);
                 showError(makeVisibleError(e), resolve);
             });
+        };
+
+        if (credentialsProvided(username, password)) {
+            try {
+                await cleanUpRemains();
+                await createSessionWithCredentials(appUrl, username, password);
+            } catch (e) {
+                await handleError(e ? e : new Error("Failed to create session with provided credentials."));
+
+                window.location.reload(true);
+            }
+        } else if (requirePin) {
+            try {
+                const token = await secureTokenStore.get();
+                const pinValue = await Pin.get();
+
+                if (token && pinValue) {
+                    await PinView.verify();
+
+                    console.info("Successfully verified pin");
+                } else {
+                    console.info("No pin and/or token");
+
+                    await logout();
+                    await cleanUpRemains();
+                }
+            } catch (e) {
+                console.info("Failed to verify pin");
+                await handleError(e ? e : new Error("Removing pin and reloading."));
+
+                await logout();
+                await cleanUpRemains();
+            }
+        }
+
+        try {
+            console.info("Syncing and starting up");
+
+            await syncAndStartup();
+        } catch(e) {
+            console.info("Failed to sync and startup");
+
+            await handleError(e ? e : new Error("Failed to sync and startup."));
+
+            await logout();
+            await cleanUpRemains();
+
+            window.location.reload(true);
         }
     };
 
-    var createSessionWithCredentials = function(url, username, password) {
+    const createSessionWithCredentials = function(url, username, password) {
         var loginUrl = url + 'xas/';
         var attempts = 20;
 
