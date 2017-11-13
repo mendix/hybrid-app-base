@@ -563,29 +563,29 @@ module.exports = (function() {
             try {
                 let localResult = await getLocalConfig();
 
-                getRemoteConfig().then((remoteResult) => {
-                    let updateConfig = async () => {
-                        await synchronizePackage(sourceUri, destinationUri);
-                        window.location.reload();
-                    }
+                let remoteResult = await getRemoteConfig();
 
-                    if (remoteResult.cachebust !== localResult.cachebust) {
-                        if (onAppUpdateAvailableFn) {
-                            onAppUpdateAvailableFn(updateConfig);
-                        } else {
-                            navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
-                                (buttonIndex) => buttonIndex === 1 && updateConfig(),
-                                __("Update ready"),
-                                [__("Yes"), __("No, update later")]
-                            );
-                        }
+                let updateConfig = async () => {
+                    await synchronizePackage(sourceUri, destinationUri);
+                    window.location.reload();
+                };
+
+                if (remoteResult.cachebust !== localResult.cachebust) {
+                    if (onAppUpdateAvailableFn) {
+                        onAppUpdateAvailableFn(updateConfig);
+                    } else {
+                        navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
+                            (buttonIndex) => buttonIndex === 1 && updateConfig(),
+                            __("Update ready"),
+                            [__("Yes"), __("No, update later")]
+                        );
                     }
-                }).catch((e) => {
-                    console.log('Unable to retrieve components.json');
-                });
+                }
 
                 return [ localResult, resourcesDirectory];
             } catch (e) {
+                console.log('Unable to retrieve components.json');
+
                 let remoteResult = await getRemoteConfig();
 
                 await synchronizePackage(sourceUri, destinationUri);
@@ -595,7 +595,16 @@ module.exports = (function() {
             let remoteResult = await getRemoteConfig();
 
             if (shouldDownloadFn(remoteResult)) {
-                await synchronizePackage(sourceUri, destinationUri);
+                try {
+                    let localResult = await getLocalConfig();
+
+                    if (remoteResult.cachebust !== localResult.cachebust) {
+                        await synchronizePackage(sourceUri, destinationUri);
+                    }
+                } catch (e) {
+                    await synchronizePackage(sourceUri, destinationUri);
+                }
+
                 return [ remoteResult, resourcesDirectory ];
             } else {
                 return [ remoteResult, url ];
