@@ -555,14 +555,13 @@ module.exports = (function() {
             .then(unpackageWithCleanup, handleFailedDownload);
     };
 
-    var synchronizeResources = async function(url, enableOffline, shouldDownloadFn) {
+    var synchronizeResources = async function(url, enableOffline, shouldDownloadFn, updateAsync) {
         const sourceUri = encodeURI(url + "resources.zip");
         const destinationUri = cacheDirectory + "resources.zip";
 
         if (enableOffline) {
             try {
                 let localResult = await getLocalConfig();
-
                 let remoteResult = await getRemoteConfig();
 
                 let updateConfig = async () => {
@@ -571,14 +570,18 @@ module.exports = (function() {
                 };
 
                 if (remoteResult.cachebust !== localResult.cachebust) {
-                    if (onAppUpdateAvailableFn) {
-                        onAppUpdateAvailableFn(updateConfig);
+                    if (updateAsync) {
+                        if (onAppUpdateAvailableFn) {
+                            onAppUpdateAvailableFn(updateConfig);
+                        } else {
+                            navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
+                                (buttonIndex) => buttonIndex === 1 && updateConfig(),
+                                __("Update ready"),
+                                [__("Yes"), __("No, update later")]
+                            );
+                        }
                     } else {
-                        navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
-                            (buttonIndex) => buttonIndex === 1 && updateConfig(),
-                            __("Update ready"),
-                            [__("Yes"), __("No, update later")]
-                        );
+                        await updateConfig();
                     }
                 }
 
@@ -691,7 +694,7 @@ module.exports = (function() {
         );
     };
 
-    var initialize = async function(url, enableOffline, requirePin, username, password) {
+    var initialize = async function(url, enableOffline, requirePin, username, password, updateAsync) {
         enableOffline = !!enableOffline;
 
         // Make sure the url always ends with a /
@@ -745,7 +748,7 @@ module.exports = (function() {
         };
 
         const syncAndStartup = async function() {
-            const [config, resourcesUrl] = await synchronizeResources(appUrl, enableOffline, shouldDownloadFn);
+            const [config, resourcesUrl] = await synchronizeResources(appUrl, enableOffline, shouldDownloadFn, updateAsync);
             await startup(config, resourcesUrl, appUrl, enableOffline, requirePin);
         };
 

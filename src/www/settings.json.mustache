@@ -1,7 +1,8 @@
 {
   "url": "{{{url}}}",
-  "enableOffline": {{enableOffline}},
-  "requirePin": {{requirePin}},
+  "enableOffline": {{#enableOffline}}{{enableOffline}}{{/enableOffline}}{{^enableOffline}}false{{/enableOffline}},
+  "requirePin": {{#requirePin}}{{requirePin}}{{/requirePin}}{{^requirePin}}false{{/requirePin}},
+  "updateAsync": {{#updateAsync}}{{updateAsync}}{{/updateAsync}}{{^updateAsync}}false{{/updateAsync}},
   "username": "{{username}}",
   "password": "{{password}}"
 }
