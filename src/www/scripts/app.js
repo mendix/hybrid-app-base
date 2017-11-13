@@ -796,7 +796,6 @@ module.exports = (function() {
                 }
             } catch (e) {
                 console.info("Failed to verify pin");
-                await handleError(e ? e : new Error("Removing pin and reloading."));
 
                 await logout();
                 await cleanUpRemains();
