@@ -555,21 +555,38 @@ module.exports = (function() {
             .then(unpackageWithCleanup, handleFailedDownload);
     };
 
-    var synchronizeResources = async function(url, enableOffline, shouldDownloadFn) {
+    var synchronizeResources = async function(url, enableOffline, shouldDownloadFn, updateAsync) {
         const sourceUri = encodeURI(url + "resources.zip");
         const destinationUri = cacheDirectory + "resources.zip";
 
         if (enableOffline) {
+            let localResult;
+
+            // First get the local config. This determines if we've already synchronized the package before.
             try {
-                let localResult = await getLocalConfig();
+                localResult = await getLocalConfig();
+            } catch (e) {
+                console.log('Unable to retrieve local components.json');
 
-                getRemoteConfig().then((remoteResult) => {
-                    let updateConfig = async () => {
-                        await synchronizePackage(sourceUri, destinationUri);
-                        window.location.reload();
-                    }
+                let remoteResult = await getRemoteConfig();
 
-                    if (remoteResult.cachebust !== localResult.cachebust) {
+                // Since we don't have local files yet, we'll have to synchronize the package now (synchronously).
+                await synchronizePackage(sourceUri, destinationUri);
+                return [ remoteResult, resourcesDirectory ];
+            }
+
+            // If we found a local config, then we can try to determine if we need to upgrade, by checking against the remote config.
+            try {
+                let remoteResult = await getRemoteConfig();
+
+                let updateConfig = async () => {
+                    await synchronizePackage(sourceUri, destinationUri);
+                    window.location.reload();
+                };
+
+                if (remoteResult.cachebust !== localResult.cachebust) {
+                    // If the updateConfig is set, then we synchronize the package in the background. Otherwise, we do it synchronously.
+                    if (updateAsync) {
                         if (onAppUpdateAvailableFn) {
                             onAppUpdateAvailableFn(updateConfig);
                         } else {
@@ -579,23 +596,30 @@ module.exports = (function() {
                                 [__("Yes"), __("No, update later")]
                             );
                         }
+                    } else {
+                        await updateConfig();
                     }
-                }).catch((e) => {
-                    console.log('Unable to retrieve components.json');
-                });
-
-                return [ localResult, resourcesDirectory];
+                }
             } catch (e) {
-                let remoteResult = await getRemoteConfig();
-
-                await synchronizePackage(sourceUri, destinationUri);
-                return [ remoteResult, resourcesDirectory ];
+                // We couldn't determine whether to upgrade. We'll just continue with local files.
+                console.log('Unable to retrieve remote components.json');
             }
+
+            return [ localResult, resourcesDirectory];
         } else {
             let remoteResult = await getRemoteConfig();
 
             if (shouldDownloadFn(remoteResult)) {
-                await synchronizePackage(sourceUri, destinationUri);
+                try {
+                    let localResult = await getLocalConfig();
+
+                    if (remoteResult.cachebust !== localResult.cachebust) {
+                        await synchronizePackage(sourceUri, destinationUri);
+                    }
+                } catch (e) {
+                    await synchronizePackage(sourceUri, destinationUri);
+                }
+
                 return [ remoteResult, resourcesDirectory ];
             } else {
                 return [ remoteResult, url ];
@@ -682,7 +706,7 @@ module.exports = (function() {
         );
     };
 
-    var initialize = async function(url, enableOffline, requirePin, username, password) {
+    var initialize = async function(url, enableOffline, requirePin, username, password, updateAsync) {
         enableOffline = !!enableOffline;
 
         // Make sure the url always ends with a /
@@ -736,7 +760,7 @@ module.exports = (function() {
         };
 
         const syncAndStartup = async function() {
-            const [config, resourcesUrl] = await synchronizeResources(appUrl, enableOffline, shouldDownloadFn);
+            const [config, resourcesUrl] = await synchronizeResources(appUrl, enableOffline, shouldDownloadFn, updateAsync);
             await startup(config, resourcesUrl, appUrl, enableOffline, requirePin);
         };
 
