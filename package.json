@@ -3,16 +3,7 @@
   "version": "1.6.0",
   "description": "Mendix PhoneGap Build base package",
   "scripts": {
-    "appbase": "node ./node_modules/webpack/bin/webpack --config ./webpack.config.appbase.js",
-    "pgpackage": "node ./node_modules/webpack/bin/webpack",
-    "pgwatch": "node ./node_modules/webpack/bin/webpack --watch",
-    "pgplatform": "cd build && phonegap platforms",
-    "pgplugin": "cd build && phonegap plugin",
-    "pgprepare": "cd build && phonegap prepare",
-    "pgcompile": "cd build && phonegap compile",
-    "pgbuild": "cd build && phonegap build",
-    "pgrun": "cd build && phonegap run",
-    "pgremote": "cd build && phonegap remote run"
+    "appbase": "node ./node_modules/webpack/bin/webpack --config ./webpack.config.appbase.js"
   },
   "main": "src/www/scripts/entry.js",
   "directories": {
