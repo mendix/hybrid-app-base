@@ -21,7 +21,7 @@ require("../styles/login.css");
 module.exports = (function() {
     var defaultConfig = {
             files: {
-                js: [ "mxclientsystem/mxui/mxui.js" ],
+                js: ["mxclientsystem/mxui/mxui.js"],
                 css: [
                     "lib/bootstrap/css/bootstrap.min.css",
                     "mxclientsystem/mxui/ui/mxui.css",
@@ -32,9 +32,9 @@ module.exports = (function() {
         },
         appUrl = "";
 
-    var cacheDirectory;     // throwaway data, like resources.zip
+    var cacheDirectory; // throwaway data, like resources.zip
     var resourcesDirectory; // static resources private to app
-    var documentDirectory;  // downloaded documents
+    var documentDirectory; // downloaded documents
 
     var clickType = typeof document.ontouchstart === "undefined" ? "click" : "touchstart";
 
@@ -125,7 +125,7 @@ module.exports = (function() {
         }, interval);
     };
 
-    var createTokenStore = function(requirePin){
+    var createTokenStore = function(requirePin) {
         var tokenStore = new TokenStore(requirePin ? SecureStore : LocalStore);
 
         return {
@@ -184,12 +184,15 @@ module.exports = (function() {
                 },
                 store: {
                     createStoreFn: function() {
-                        let db = window.sqlitePlugin.openDatabase({ name: "MendixDatabase.db", location: 2 });
+                        let db = window.sqlitePlugin.openDatabase({
+                            name: "MendixDatabase.db",
+                            location: 2
+                        });
 
                         window.onbeforeunload = function(e) {
-                            db.close(function () {
+                            db.close(function() {
                                 console.log("DB closed!");
-                            }, function (error) {
+                            }, function(error) {
                                 console.log("Error closing DB: " + error.message);
                             });
                         };
@@ -297,7 +300,7 @@ module.exports = (function() {
                 window.dojoConfig.data.onlineBackend = {
                     getImgUriFn: function(url, callback, error) {
                         var fileTransfer = new FileTransfer();
-                        var tmpFile = cordova.file.tempDirectory  + "img" + (+ new Date()) + "-" + sequence++;
+                        var tmpFile = cordova.file.tempDirectory + "img" + (+new Date()) + "-" + sequence++;
 
                         // Workaround for issue introduced in 7.0.0, where url was of the wrong type (object instead of string)
                         url = (typeof url === 'string') ? url : url["0"];
@@ -305,7 +308,7 @@ module.exports = (function() {
                         fileTransfer.download(url, tmpFile, function(fileEntry) {
                             fileEntry.file(function(file) {
                                 var reader = new FileReader();
-                                reader.onload = function (evt) {
+                                reader.onload = function(evt) {
                                     var obj = evt.target.result;
                                     callback(obj);
                                 };
@@ -441,7 +444,7 @@ module.exports = (function() {
 
     var getLocalConfig = function() {
         return new Promise(function(resolve, reject) {
-            request(resourcesDirectory + "components.json?" + (+ new Date()), {
+            request(resourcesDirectory + "components.json?" + (+new Date()), {
                 method: "GET",
                 onLoad: function(status, result) {
                     try {
@@ -480,7 +483,7 @@ module.exports = (function() {
     var _downloadAppPackage = function(sourceUri, destinationUri) {
         return download(sourceUri, destinationUri, false, {
             headers: {
-                "Accept-Encoding" : ""
+                "Accept-Encoding": ""
             }
         }, createOnProgressHandler(__("Updating app")));
     };
@@ -572,7 +575,7 @@ module.exports = (function() {
 
                 // Since we don't have local files yet, we'll have to synchronize the package now (synchronously).
                 await synchronizePackage(sourceUri, destinationUri);
-                return [ remoteResult, resourcesDirectory ];
+                return [remoteResult, resourcesDirectory];
             }
 
             // If we found a local config, then we can try to determine if we need to upgrade, by checking against the remote config.
@@ -580,7 +583,7 @@ module.exports = (function() {
                 let remoteResult = await getRemoteConfig();
 
                 let updateConfig = async () => {
-                    await synchronizePackage(sourceUri, destinationUri);
+                    await synchronizePackage(sourceUri + "?" + remoteResult.cachebust, destinationUri);
                     window.location.reload();
                 };
 
@@ -592,8 +595,7 @@ module.exports = (function() {
                         } else {
                             navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
                                 (buttonIndex) => buttonIndex === 1 && updateConfig(),
-                                __("Update ready"),
-                                [__("Yes"), __("No, update later")]
+                                __("Update ready"), [__("Yes"), __("No, update later")]
                             );
                         }
                     } else {
@@ -605,7 +607,7 @@ module.exports = (function() {
                 console.log('Unable to retrieve remote components.json');
             }
 
-            return [ localResult, resourcesDirectory];
+            return [localResult, resourcesDirectory];
         } else {
             let remoteResult = await getRemoteConfig();
 
@@ -620,9 +622,9 @@ module.exports = (function() {
                     await synchronizePackage(sourceUri, destinationUri);
                 }
 
-                return [ remoteResult, resourcesDirectory ];
+                return [remoteResult, resourcesDirectory];
             } else {
-                return [ remoteResult, url ];
+                return [remoteResult, url];
             }
         }
     };
@@ -725,9 +727,19 @@ module.exports = (function() {
             return config.downloadResources || enableOffline;
         };
 
-        const reflect = function(promise){
-            return promise.then(function(v){ return {v:v, status: "resolved" }},
-                function(e){ return {e:e, status: "rejected" }});
+        const reflect = function(promise) {
+            return promise.then(function(v) {
+                    return {
+                        v: v,
+                        status: "resolved"
+                    }
+                },
+                function(e) {
+                    return {
+                        e: e,
+                        status: "rejected"
+                    }
+                });
         };
 
         const cleanUpRemains = async function() {
@@ -754,7 +766,7 @@ module.exports = (function() {
                         });
                     });
                 }
-            } catch(e) {
+            } catch (e) {
                 console.info("Could not clean remaining session data; maybe they were already removed: ", e ? e : "no details");
             }
         };
@@ -830,7 +842,7 @@ module.exports = (function() {
             console.info("Syncing and starting up");
 
             await syncAndStartup();
-        } catch(e) {
+        } catch (e) {
             console.info("Failed to sync and startup");
 
             await handleError(e ? e : new Error("Failed to sync and startup."));
@@ -855,10 +867,12 @@ module.exports = (function() {
                 timeout: 5000,
                 onLoad: callback,
                 method: "post",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json"
+                },
                 data: JSON.stringify({
-                    action : "login",
-                    params : {
+                    action: "login",
+                    params: {
                         username: username,
                         password: password
                     }
