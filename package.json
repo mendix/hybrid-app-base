@@ -10,11 +10,11 @@
     "lib": "src"
   },
   "files": [
-    "config",
-    "src",
-    "*.js",
-    "yarn.lock",
-    "README.md"
+    "/config",
+    "/src",
+    "/*.json",
+    "/*.js",
+    "/*.md"
   ],
   "dependencies": {
     "android-versions": "^1.3.0",
