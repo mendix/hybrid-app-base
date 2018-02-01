@@ -1,4 +1,11 @@
+var fs = require("fs");
 var utils = require("./utils");
+
+var config_snippet_path = utils.getBaseOrCustomPath("config/config.xml.snippet");
+var loader_snippet_path = utils.getBaseOrCustomPath("config/loader.html.snippet");
+var loader_styling_snippet_path = utils.getBaseOrCustomPath("config/loader.css.snippet");
+var custom_styling_snippet_path = utils.getBaseOrCustomPath("config/custom.css.snippet");
+
 
 function compile_settings(env) {
     var settings = Object.assign(
@@ -54,6 +61,13 @@ function compile_settings(env) {
     if (typeof settings.options.debug === 'undefined') {
         settings.options.debug = (settings.options.environment !== "production");
     }
+
+    Object.assign(settings, {
+        "customConfiguration": fs.readFileSync(config_snippet_path, {"encoding": "utf8"}),
+        "loaderHtml": fs.readFileSync(loader_snippet_path, {"encoding": "utf8"}),
+        "loaderCss": fs.readFileSync(loader_styling_snippet_path, {"encoding": "utf8"}),
+        "customCss": fs.readFileSync(custom_styling_snippet_path, {"encoding": "utf8"})
+    });
 
     return settings;
 }

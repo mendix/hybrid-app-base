@@ -15,5 +15,11 @@
     "geoLocation": true,
     "microphone": true,
     "photoLibrary": true
+  },
+  "theme" : {
+    "background" : "#0595DB",
+    "text" : "#fff",
+    "button" : "#76CA02",
+    "buttonCaption" : "#fff"
   }
 }

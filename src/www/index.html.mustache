@@ -11,25 +11,32 @@
         <div id="content"></div>
 
         <div id="mx-app" class="mx-main-container">
-            <div id="mxalert" class="mx-alert">
-                <div class="mx-alert-header">
-                    <h4>Error</h4>
+            <div id="mxalert" class="mx-container">
+                <div class="mx-valign-table">
+                    <div class="mx-valign-cell">
+                        <img src="img/warning.png" />
+                    </div>
                 </div>
-                <div class="mx-alert-body">
-                    <p id="mxalert_message"></p>
-                </div>
+                <p id="mxalert_message">Could not load app</p>
                 <div class="mx-alert-footer">
-                    <button id="mxalert_button" type="button">OK</button>
+                    <button id="mxalert_button" class="mx-hybridapp-button">OK</button>
                 </div>
             </div>
 
-            <div id="mx-loader-container" class="mx-valign-table">
-                <div class="mx-valign-cell">
-                    <div class="mx-loader">
-                        <img src="img/loader.gif" />
-                        <div class="mx-message"></div>
+            <div id="mx-loader-container" class="mx-container">
+                <div class="mx-valign-table">
+                    <div class="mx-valign-cell">
+                        {{#htmlWebpackPlugin.options.loaderHtml}}
+                        {{{htmlWebpackPlugin.options.loaderHtml}}}
+                        {{/htmlWebpackPlugin.options.loaderHtml}}
+                        {{^htmlWebpackPlugin.options.loaderHtml}}
+                        <div id="preloader">
+                            <div id="loader"></div>
+                        </div>
+                        {{/htmlWebpackPlugin.options.loaderHtml}}
                     </div>
                 </div>
+                <div class="mx-message"></div>
             </div>
         </div>
 

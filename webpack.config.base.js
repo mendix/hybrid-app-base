@@ -1,15 +1,15 @@
 var fs = require("fs");
 var path = require("path");
-var util = require("util");
 
 var webpack = require("webpack");
 
-var ContextReplacementPlugin = require("webpack/lib/ContextReplacementPlugin");
+var Mustache = require("mustache");
+
+var HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
 var CopyWebpackPlugin = require("copy-webpack-plugin");
 var HtmlWebpackPlugin = require("html-webpack-plugin");
-var ExtractTextWebpackPlugin = require("extract-text-webpack-plugin");
-var I18nPlugin = require("i18n-webpack-plugin");
 var CleanWebpackPlugin = require('clean-webpack-plugin');
+var I18nPlugin = require("i18n-webpack-plugin");
 
 var utils = require("./utils");
 var compile_settings = require("./settings");
@@ -23,8 +23,8 @@ module.exports = function(env) {
     }
 
     var index_template_path = utils.getBaseOrCustomPath("src/www/index.html.mustache");
-    var config_template_path = utils.getBaseOrCustomPath("src/config.xml.mustache");
     var default_splash_path = utils.getBaseOrCustomPath("src/resources/splash.png");
+    var styling_path = utils.getBaseOrCustomPath("src/www/styles/");
 
     // Build the configuration object.
     var config = {
@@ -42,15 +42,12 @@ module.exports = function(env) {
             // Rules are used to process specific file types
             rules: [
                 {
-                    test: /\.mustache$/,
-                    loader: 'mustache-loader'
+                    test: /\.css$/,
+                    use: "css-loader"
                 },
                 {
-                    test: /\.css$/,
-                    use: ExtractTextWebpackPlugin.extract({
-                        fallback: "style-loader",
-                        use: "css-loader"
-                    })
+                    test: /\.mustache$/,
+                    use: "mustache-loader"
                 },
                 {
                     test: /\.js$/,
@@ -72,7 +69,6 @@ module.exports = function(env) {
         },
         // This is where the bulk of the action happens
         plugins: [
-            new ContextReplacementPlugin(/template\/styles/, path.join(process.cwd(), "src/www/styles"), true, /.*\.css$/),
             // Clean up previous builds
             new CleanWebpackPlugin(["build"], {
                 root: process.cwd(),
@@ -96,17 +92,33 @@ module.exports = function(env) {
                     context: path.dirname(default_splash_path),
                     from: path.basename(default_splash_path),
                     to: path.basename(default_splash_path)
+                },
+                {
+                    context: path.dirname(styling_path),
+                    from: '**/*.css',
+                    to: path.normalize("www/css/[name].css")
+                },
+                {
+                    context: path.dirname(styling_path),
+                    from: '**/*.css.mustache',
+                    to: path.normalize("www/css/[name]"),
+                    transform: function (content) {
+                        return Mustache.render(content.toString(), settings);
+                    }
                 }
             ]),
-            new ExtractTextWebpackPlugin({ // Extract 'require'ed CSS files into one CSS file
-                filename: "www/css/[name].css",
-                allChunks: false
-            }),
             new HtmlWebpackPlugin(Object.assign({ // Generate the index.html
                 filename: "www/index.html",
                 inject: true,
                 template: index_template_path
-            }, settings))
+            }, settings)),
+            new HtmlWebpackIncludeAssetsPlugin({ // Copy styling files
+                assets: [
+                    "www/css/index.css",
+                    { path: 'www/css', glob: '**/*.css', globPath: path.normalize('src/www/styles/') }
+                ],
+                append: false
+            })
         ]
     };
 

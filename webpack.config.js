@@ -1,4 +1,3 @@
-var fs = require("fs");
 var path = require("path");
 var util = require("util");
 
@@ -6,7 +5,6 @@ var webpack = require("webpack");
 var webpack_merge = require('webpack-merge');
 
 var CopyWebpackPlugin = require("copy-webpack-plugin");
-var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 var WebpackArchivePlugin = require("webpack-archive-plugin");
 
 var Mustache = require("mustache");
@@ -15,15 +13,12 @@ var sanitize = require("sanitize-filename");
 var base_config = require("./webpack.config.base");
 
 var utils = require("./utils");
-// var compile_settings = require("./settings");
 
 module.exports = function(env) {
     const settings = require("./settings")(env);
 
-    var index_template_path = utils.getBaseOrCustomPath("src/www/index.html.mustache");
     var config_template_path = utils.getBaseOrCustomPath("src/config.xml.mustache");
     var settings_template_path = utils.getBaseOrCustomPath("src/www/settings.json.mustache");
-    var config_snippet_path = utils.getBaseOrCustomPath("config/config.xml.snippet");
 
     var config = webpack_merge(base_config(env), {
         plugins: [
@@ -33,10 +28,6 @@ module.exports = function(env) {
                     from: path.basename(config_template_path),
                     to: "config.xml",
                     transform: function (content) {
-                        var custom_config = fs.readFileSync(config_snippet_path, {"encoding": "utf8"});
-                        Object.assign(settings, {
-                            "customConfiguration": custom_config
-                        });
                         return Mustache.render(content.toString(), settings);
                     }
                 },
@@ -80,7 +71,7 @@ module.exports = function(env) {
                     toplevel: true,
                     extractComments: true, parallel: {
                         cache: true,
-                        workers: 2 // for e.g
+                        workers: 2
                     }
                 })
             ]
