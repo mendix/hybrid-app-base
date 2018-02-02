@@ -21,13 +21,13 @@ button, input, select, textarea {
 }
 
 .mx-main-container, .mx-hybridapp-wrapper {
-    background-color: {{htmlWebpackPlugin.options.theme.background}};
-    color: {{htmlWebpackPlugin.options.theme.text}};
+    background-color: {{theme.background}};
+    color: {{theme.text}};
 }
 
 .mx-hybridapp-button {
-    color: {{htmlWebpackPlugin.options.theme.buttonCaption}};
-    background-color: {{htmlWebpackPlugin.options.theme.button}};
+    color: {{theme.buttonCaption}};
+    background-color: {{theme.button}};
 }
 
 .mx-hybridapp-login,
@@ -37,10 +37,10 @@ button, input, select, textarea {
     color: #fff;
 }
 
-{{#htmlWebpackPlugin.options.loaderCss}}
-{{{htmlWebpackPlugin.options.loaderCss}}}
-{{/htmlWebpackPlugin.options.loaderCss}}
-{{^htmlWebpackPlugin.options.loaderCss}}
+{{#loaderCss}}
+{{{loaderCss}}}
+{{/loaderCss}}
+{{^loaderCss}}
 #preloader {
     position: fixed;
     top: 0;
@@ -120,7 +120,7 @@ button, input, select, textarea {
         transform: rotate(360deg);
     }
 }
-{{/htmlWebpackPlugin.options.loaderCss}}
+{{/loaderCss}}
 
 .mx-main-container, .mx-hybridapp-wrapper {
     font-family: helvetica, arial, sans-serif;
@@ -334,4 +334,4 @@ button, input, select, textarea {
     }
 }
 
-{{{htmlWebpackPlugin.options.customCss}}}
+{{{customCss}}}
