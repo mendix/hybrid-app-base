@@ -48,7 +48,6 @@
     <plugin name="cordova-plugin-zip" source="npm" spec="3.1.0" />
     <plugin name="cordova-plugin-whitelist" source="npm" spec="1.2.2" />
     <plugin name="cordova-sqlite-storage-pgb" source="git" spec="https://github.com/mendix/Cordova-sqlite-storage-pgb.git#storage-master" />
-    <plugin name="phonegap-plugin-push" source="npm" spec="1.5.3" />
     <plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm" version="2.9.11"/>
 
     {{#permissions.calendar}}
@@ -99,6 +98,10 @@
     {{#permissions.microphone}}
         <plugin name="cordova-plugin-media" source="npm" spec="2.3.0" />
     {{/permissions.microphone}}
+
+    {{#permissions.push}}
+        <plugin name="phonegap-plugin-push" source="npm" spec="1.5.3" />
+    {{/permissions.push}}
 
     {{#iosEnabled}}
         <!-- On iOS, the statusbar is transparent by default and is drawn over the top of our app. -->
