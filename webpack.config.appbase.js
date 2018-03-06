@@ -15,6 +15,7 @@ var utils = require("./utils");
 module.exports = function(env) {
     var config_template_path = utils.getBaseOrCustomPath("src/config.xml.mustache");
     var settings_template_path = utils.getBaseOrCustomPath("src/www/settings.json.mustache");
+    var index_template_path = utils.getBaseOrCustomPath("src/www/index.html.mustache");
 
     return webpack_merge(base_config(env), {
         devtool: "source-map",
@@ -29,7 +30,13 @@ module.exports = function(env) {
                     context: path.dirname(settings_template_path),
                     from: path.basename(settings_template_path),
                     to: path.normalize("www/settings.json")
-                }
+                },
+                {
+                    context: path.dirname(index_template_path),
+                    from: path.basename(index_template_path),
+                    to: path.normalize("www/index.html"),
+                    transform: (content, path) => content.toString().replace(/htmlWebpackPlugin\.options\./g, "")
+                },
             ]),
             new WebpackArchivePlugin({ // Compress everything into a ZIP file that can be uploaded to Phonegap Build
                 output: path.join("dist", util.format("appbase-%s", package_config.version)),

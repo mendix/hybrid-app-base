@@ -5,9 +5,7 @@ var webpack = require("webpack");
 
 var Mustache = require("mustache");
 
-var HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
 var CopyWebpackPlugin = require("copy-webpack-plugin");
-var HtmlWebpackPlugin = require("html-webpack-plugin");
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 var I18nPlugin = require("i18n-webpack-plugin");
 
@@ -22,7 +20,6 @@ module.exports = function(env) {
         fs.mkdirSync("dist");
     }
 
-    var index_template_path = utils.getBaseOrCustomPath("src/www/index.html.mustache");
     var default_splash_path = utils.getBaseOrCustomPath("src/resources/splash.png");
     var styling_path = utils.getBaseOrCustomPath("src/www/styles/");
 
@@ -106,19 +103,7 @@ module.exports = function(env) {
                         return Mustache.render(content.toString(), settings);
                     }
                 }
-            ]),
-            new HtmlWebpackPlugin(Object.assign({ // Generate the index.html
-                filename: "www/index.html",
-                inject: true,
-                template: index_template_path
-            }, settings)),
-            new HtmlWebpackIncludeAssetsPlugin({ // Copy styling files
-                assets: [
-                    "www/css/index.css",
-                    { path: 'www/css', glob: '**/*.css', globPath: path.normalize('src/www/styles/') }
-                ],
-                append: false
-            })
+            ])
         ]
     };
 
