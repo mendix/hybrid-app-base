@@ -22,6 +22,7 @@ module.exports = function(env) {
     var config_template_path = utils.getBaseOrCustomPath("src/config.xml.mustache");
     var settings_template_path = utils.getBaseOrCustomPath("src/www/settings.json.mustache");
     var index_template_path = utils.getBaseOrCustomPath("src/www/index.html.mustache");
+    var styling_path = utils.getBaseOrCustomPath("src/www/styles/");
 
     var config = webpack_merge(base_config(env), {
         plugins: [
@@ -52,6 +53,16 @@ module.exports = function(env) {
                     }
                 })
             ),
+            new CopyWebpackPlugin([
+                {
+                    context: path.dirname(styling_path),
+                    from: '**/*.css.mustache',
+                    to: path.normalize("www/css/[name]"),
+                    transform: function (content) {
+                        return Mustache.render(content.toString(), settings);
+                    }
+                }
+            ]),
             new HtmlWebpackPlugin(Object.assign({ // Generate the index.html
                 filename: "www/index.html",
                 inject: true,

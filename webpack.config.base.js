@@ -3,8 +3,6 @@ var path = require("path");
 
 var webpack = require("webpack");
 
-var Mustache = require("mustache");
-
 var CopyWebpackPlugin = require("copy-webpack-plugin");
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 var I18nPlugin = require("i18n-webpack-plugin");
@@ -94,14 +92,6 @@ module.exports = function(env) {
                     context: path.dirname(styling_path),
                     from: '**/*.css',
                     to: path.normalize("www/css/[name].css")
-                },
-                {
-                    context: path.dirname(styling_path),
-                    from: '**/*.css.mustache',
-                    to: path.normalize("www/css/[name]"),
-                    transform: function (content) {
-                        return Mustache.render(content.toString(), settings);
-                    }
                 }
             ])
         ]
