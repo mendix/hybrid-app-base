@@ -6,6 +6,8 @@ var webpack_merge = require('webpack-merge');
 
 var CopyWebpackPlugin = require("copy-webpack-plugin");
 var WebpackArchivePlugin = require("webpack-archive-plugin");
+var HtmlWebpackPlugin = require("html-webpack-plugin");
+var HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
 var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 var base_config = require("./webpack.config.base");
@@ -44,6 +46,18 @@ module.exports = function(env) {
                     to: path.normalize("www/css/index.css")
                 }
             ]),
+            new HtmlWebpackPlugin({ // Generate the index.html
+                filename: "www/index.html",
+                inject: true,
+                template: index_template_path
+            }),
+            new HtmlWebpackIncludeAssetsPlugin({ // Copy styling files
+                assets: [
+                    "www/css/index.css",
+                    { path: 'www/css', glob: '**/*.css[.mustache]', globPath: path.normalize('src/www/styles/'), type: 'css' }
+                ],
+                append: false
+            }),
             new WebpackArchivePlugin({ // Compress everything into a ZIP file that can be uploaded to Phonegap Build
                 output: path.join("dist", util.format("appbase-%s", package_config.version)),
                 format: "zip"
