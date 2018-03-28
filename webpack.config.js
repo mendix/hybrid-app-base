@@ -23,6 +23,8 @@ module.exports = function(env) {
     var settings_template_path = utils.getBaseOrCustomPath("src/www/settings.json.mustache");
     var index_template_path = utils.getBaseOrCustomPath("src/www/index.html.mustache");
     var styling_path = utils.getBaseOrCustomPath("src/www/styles/");
+    var google_services_json_path = utils.getBaseOrCustomPath("config/google-services.json");
+    var google_service_plist_path = utils.getBaseOrCustomPath("config/GoogleService-info.plist");
 
     var config = webpack_merge(base_config(env), {
         plugins: [
@@ -42,6 +44,16 @@ module.exports = function(env) {
                     transform: function (content) {
                         return Mustache.render(content.toString(), settings);
                     }
+                },
+                {
+                    context: path.dirname(google_services_json_path),
+                    from: path.basename(google_services_json_path),
+                    to: path.basename(google_services_json_path)
+                },
+                {
+                    context: path.dirname(google_service_plist_path),
+                    from: path.basename(google_service_plist_path),
+                    to: path.basename(google_service_plist_path)
                 }
             ]),
             new CopyWebpackPlugin( // Resource files
