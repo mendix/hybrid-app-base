@@ -41,6 +41,10 @@ button, input, select, textarea {
 {{{loaderCss}}}
 {{/loaderCss}}
 {{^loaderCss}}
+#mx-loader-container {
+    font-weight: 400;
+}
+
 #preloader {
     position: fixed;
     top: 0;
@@ -176,6 +180,7 @@ button, input, select, textarea {
 
 #mxalert {
     display: none;
+    font-weight: 400;
 }
 
 #mxalert img {
@@ -198,6 +203,7 @@ button, input, select, textarea {
     position: relative;
     max-width: 340px;
     width: 100%;
+    font-weight: 400;
     animation: fadein 2s;
     -moz-animation: fadein 2s;
     -webkit-animation: fadein 2s;
