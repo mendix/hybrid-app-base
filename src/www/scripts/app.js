@@ -149,7 +149,7 @@ module.exports = (function() {
                 async: true,
                 cacheBust: config.cachebust,
                 server: {
-                    timeout: 5000
+                    timeout: enableOffline ? 30000 : 5000
                 },
                 data: {
                     offlineBackend: {
