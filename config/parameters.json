@@ -8,6 +8,7 @@
   "requirePin": false,
   "androidEnabled": true,
   "iosEnabled": true,
+  "crosswalkEnabled": false,
   "permissions": {
     "calendar": true,
     "camera": true,
