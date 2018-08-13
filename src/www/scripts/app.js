@@ -7,7 +7,7 @@ import TokenStore from "./Token-store";
 import Pin from "./pin";
 import * as PinView from "./pinView";
 import SecureStore from "./secure-store";
-import LocalStore from "./local-store";
+import FileStore from "./file-store";
 
 module.exports = (function() {
     var defaultConfig = {
@@ -117,7 +117,7 @@ module.exports = (function() {
     };
 
     var createTokenStore = function(requirePin) {
-        var tokenStore = new TokenStore(requirePin ? SecureStore : LocalStore);
+        var tokenStore = new TokenStore(requirePin ? SecureStore : FileStore);
 
         return {
             set: function(token, callback) {
@@ -711,7 +711,7 @@ module.exports = (function() {
 
         setupDirectoryLocations();
 
-        const localTokenStore = new TokenStore(LocalStore);
+        const genericTokenStore = new TokenStore(FileStore);
         const secureTokenStore = requirePin ? new TokenStore(SecureStore) : undefined;
 
         var shouldDownloadFn = function(config) {
@@ -736,7 +736,7 @@ module.exports = (function() {
         const cleanUpRemains = async function() {
             try {
                 console.info("Will remove token in localStore");
-                await reflect(localTokenStore.remove());
+                await reflect(genericTokenStore.remove());
                 console.info("Will remove token in secureStore");
                 await reflect(secureTokenStore.remove());
                 console.info("Will remove pin");
