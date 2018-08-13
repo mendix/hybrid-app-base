@@ -8,6 +8,7 @@ import Pin from "./pin";
 import * as PinView from "./pinView";
 import SecureStore from "./secure-store";
 import FileStore from "./file-store";
+import LocalStore from "./local-store";
 
 module.exports = (function() {
     var defaultConfig = {
@@ -130,7 +131,16 @@ module.exports = (function() {
                     console.log("Got TOKEN " + token);
                     if (callback) callback(token);
                 }, function(e) {
-                    if (callback) callback(undefined);
+                    // Fallback
+                    const localTokenStore = new TokenStore(LocalStore);
+                    localTokenStore.get().then(function(token) {
+                        if (token) {
+                            tokenStore.set(token).then(callback, callback);
+                            if (callback) callback(token);
+                        } else {
+                            if (callback) callback(undefined);
+                        }
+                    });
                 });
             },
             remove: function(callback) {
