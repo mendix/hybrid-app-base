@@ -20,6 +20,10 @@
     <!-- allow assets to be loaded and open links in the app itself, see: http://phonegap.com/blog/2012/03/20/access-tags/ -->
     <!-- Issue 204079: Allow retrieval of any resource. Custom widgets can point to anything. -->
     <access origin="*" />
+    <allow-navigation href="*://*.mendix.com/*" />
+    <allow-navigation href="*://*.mendixcloud.com/*" />
+    <allow-navigation href="*://*.mxapp.io/*" />
+    <allow-navigation href="about:blank" />
 
     <!-- Force the default architecture for Android to ARM -->
     <plugin name="com.darktalker.cordova.screenshot" source="npm" spec="0.1.6" />
