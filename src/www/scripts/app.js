@@ -721,7 +721,8 @@ module.exports = (function() {
 
         setupDirectoryLocations();
 
-        const genericTokenStore = new TokenStore(FileStore);
+        const fileTokenStore = new TokenStore(FileStore);
+        const localTokenStore = new TokenStore(LocalStore);
         const secureTokenStore = requirePin ? new TokenStore(SecureStore) : undefined;
 
         var shouldDownloadFn = function(config) {
@@ -745,8 +746,10 @@ module.exports = (function() {
 
         const cleanUpRemains = async function() {
             try {
+                console.info("Will remove token in fileStore");
+                await reflect(fileTokenStore.remove());
                 console.info("Will remove token in localStore");
-                await reflect(genericTokenStore.remove());
+                await reflect(localTokenStore.remove());
                 console.info("Will remove token in secureStore");
                 await reflect(secureTokenStore.remove());
                 console.info("Will remove pin");
