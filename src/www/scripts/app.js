@@ -7,6 +7,7 @@ import TokenStore from "./Token-store";
 import Pin from "./pin";
 import * as PinView from "./pinView";
 import SecureStore from "./secure-store";
+import FileStore from "./file-store";
 import LocalStore from "./local-store";
 
 module.exports = (function() {
@@ -117,7 +118,7 @@ module.exports = (function() {
     };
 
     var createTokenStore = function(requirePin) {
-        var tokenStore = new TokenStore(requirePin ? SecureStore : LocalStore);
+        var tokenStore = new TokenStore(requirePin ? SecureStore : FileStore);
 
         return {
             set: function(token, callback) {
@@ -130,7 +131,16 @@ module.exports = (function() {
                     console.log("Got TOKEN " + token);
                     if (callback) callback(token);
                 }, function(e) {
-                    if (callback) callback(undefined);
+                    // Fallback
+                    const localTokenStore = new TokenStore(LocalStore);
+                    localTokenStore.get().then(function(token) {
+                        if (token) {
+                            tokenStore.set(token).then(callback, callback);
+                            if (callback) callback(token);
+                        } else {
+                            if (callback) callback(undefined);
+                        }
+                    });
                 });
             },
             remove: function(callback) {
@@ -149,7 +159,7 @@ module.exports = (function() {
                 async: true,
                 cacheBust: config.cachebust,
                 server: {
-                    timeout: 5000
+                    timeout: enableOffline ? 30000 : 5000
                 },
                 data: {
                     offlineBackend: {
@@ -275,7 +285,9 @@ module.exports = (function() {
                 window.dojoConfig.ui.openUrlFn = function(url, fileName, windowName) {
                     download(url, cordova.file.externalCacheDirectory + fileName, false, {}, null)
                         .then(function(fe) {
-                            cordova.InAppBrowser.open(fe.toURL(), "_system");
+                            fe.file(function(file) {
+                                cordova.plugins.fileOpener2.open(fe.toInternalURL(), file.type);
+                            });
                         })
                         .catch(function(e) {
                             window.mx.ui.exception(__("Could not download file"));
@@ -711,6 +723,7 @@ module.exports = (function() {
 
         setupDirectoryLocations();
 
+        const fileTokenStore = new TokenStore(FileStore);
         const localTokenStore = new TokenStore(LocalStore);
         const secureTokenStore = requirePin ? new TokenStore(SecureStore) : undefined;
 
@@ -735,6 +748,8 @@ module.exports = (function() {
 
         const cleanUpRemains = async function() {
             try {
+                console.info("Will remove token in fileStore");
+                await reflect(fileTokenStore.remove());
                 console.info("Will remove token in localStore");
                 await reflect(localTokenStore.remove());
                 console.info("Will remove token in secureStore");
