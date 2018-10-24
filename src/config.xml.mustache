@@ -140,10 +140,6 @@
             {{#iosImages}}
                 <{{{tag}}} src="{{{filename}}}" width="{{{width}}}" height="{{{height}}}" />
             {{/iosImages}}
-
-            {{#permissions.push}}
-            <resource-file src="GoogleService-Info.plist" />
-            {{/permissions.push}}
         </platform>
     {{/iosEnabled}}
 
@@ -190,7 +186,7 @@
             {{/androidImages}}
 
             {{#permissions.push}}
-                <resource-file src="google-services.json" target="google-services.json" />
+                <resource-file src="config/google-services.json" target="google-services.json" />
             {{/permissions.push}}
         </platform>
     {{/androidEnabled}}

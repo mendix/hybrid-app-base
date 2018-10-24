@@ -24,7 +24,7 @@ module.exports = function(env) {
     var index_template_path = utils.getBaseOrCustomPath("src/www/index.html.mustache");
     var styling_path = utils.getBaseOrCustomPath("src/www/styles/");
     var google_services_json_path = utils.getBaseOrCustomPath("config/google-services.json");
-    var google_service_plist_path = utils.getBaseOrCustomPath("config/GoogleService-info.plist");
+    var google_service_plist_path = utils.getBaseOrCustomPath("src/GoogleService-info.plist");
 
     var config = webpack_merge(base_config(env), {
         plugins: [

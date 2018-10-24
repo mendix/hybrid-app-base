@@ -1,0 +1,5 @@
+"cordovaPlugins": [
+    {
+        "locator": "phonegap-plugin-push"
+    }
+]
