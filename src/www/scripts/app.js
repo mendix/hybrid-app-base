@@ -285,7 +285,9 @@ module.exports = (function() {
                 window.dojoConfig.ui.openUrlFn = function(url, fileName, windowName) {
                     download(url, cordova.file.externalCacheDirectory + fileName, false, {}, null)
                         .then(function(fe) {
-                            cordova.InAppBrowser.open(fe.toURL(), "_system");
+                            fe.file(function(file) {
+                                cordova.plugins.fileOpener2.open(fe.toInternalURL(), file.type);
+                            });
                         })
                         .catch(function(e) {
                             window.mx.ui.exception(__("Could not download file"));
