@@ -1,5 +1,5 @@
 {
-  "name": "mendix-hybrid-app-base",
+  "name": "@mendix/mendix-hybrid-app-base",
   "version": "2.3.2",
   "description": "Mendix PhoneGap Build base package",
   "scripts": {
