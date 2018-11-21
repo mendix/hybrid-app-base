@@ -46,7 +46,7 @@ module.exports = function(env) {
                 },
                 {
                     test: /\.js$/,
-                    exclude: /node_modules\/(?!(mendix-hybrid-app-base)\/).*/,
+                    exclude: /node_modules\/(?!(@mendix\/mendix-hybrid-app-base)\/).*/,
                     use: {
                         loader: 'babel-loader',
                         options: {
