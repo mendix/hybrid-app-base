@@ -140,6 +140,10 @@
             {{#iosImages}}
                 <{{{tag}}} src="{{{filename}}}" width="{{{width}}}" height="{{{height}}}" />
             {{/iosImages}}
+
+            {{#permissions.push}}
+                <resource-file src="GoogleService-Info.plist" />
+            {{/permissions.push}}
         </platform>
     {{/iosEnabled}}
 
