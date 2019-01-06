@@ -27,7 +27,6 @@
     <allow-navigation href="*://*.mxapp.io/*" />
     <allow-navigation href="about:*" />
 
-    <!-- Force the default architecture for Android to ARM -->
     <plugin name="com.darktalker.cordova.screenshot" source="npm" spec="0.1.6" />
     <plugin name="com.telerik.plugins.nativepagetransitions" source="npm" spec="0.6.5" />
     <plugin name="cordova-build-architecture" source="git" spec="https://github.com/MBuchalik/cordova-build-architecture.git#v1.0.4" />
@@ -92,7 +91,7 @@
     {{/permissions.microphone}}
 
     {{#permissions.push}}
-        <plugin name="@mendix/phonegap-plugin-push" source="npm" spec="1.11.1-mx.1.0.0" />
+        <plugin name="phonegap-plugin-push" source="npm" spec="2.2.3" />
     {{/permissions.push}}
 
     {{#iosEnabled}}
@@ -141,6 +140,10 @@
                 </edit-config>
             {{/permissions.photoLibrary}}
 
+            {{#permissions.push}}
+                <resource-file src="GoogleService-Info.plist" />
+            {{/permissions.push}}
+            
             {{#permissions.contacts}}
                 <edit-config target="NSContactsUsageDescription" file="*-Info.plist" mode="merge">
                     <string>This app needs to access your contacts</string>
@@ -200,6 +203,12 @@
                     <{{{tag}}} src="{{{filename}}}" density="{{{qualifier}}}"/>
                 {{/qualifier}}
             {{/androidImages}}
+
+            {{#permissions.push}}
+                <resource-file src="config/google-services.json" target="app/google-services.json" />
+            {{/permissions.push}}
+
+            <resource-file src="build-extras.gradle" target="build-extras.gradle" />
         </platform>
     {{/androidEnabled}}
 
