@@ -25,7 +25,7 @@
     <allow-navigation href="*://*.mendix.com/*" />
     <allow-navigation href="*://*.mendixcloud.com/*" />
     <allow-navigation href="*://*.mxapp.io/*" />
-    <allow-navigation href="about:blank" />
+    <allow-navigation href="about:*" />
 
     <plugin name="com.darktalker.cordova.screenshot" source="npm" spec="0.1.6" />
     <plugin name="com.telerik.plugins.nativepagetransitions" source="npm" spec="0.6.5" />
@@ -62,41 +62,28 @@
 
     {{#permissions.camera}}
         {{#permissions.photoLibrary}}
-            <plugin name="cordova-plugin-camera" source="npm" spec="4.0.3">
-                <param name="CAMERA_USAGE_DESCRIPTION" value="This app needs to access your camera" />
-                <param name="PHOTOLIBRARY_USAGE_DESCRIPTION" value="This app needs to access your photo library" />
-            </plugin>
+            <plugin name="cordova-plugin-camera" source="npm" spec="4.0.3" />
         {{/permissions.photoLibrary}}
     {{/permissions.camera}}
 
     {{#permissions.contacts}}
-        <plugin name="cordova-plugin-contacts" source="npm" spec="3.0.1">
-            <param name="CONTACTS_USAGE_DESCRIPTION" value="This app needs to access your contacts" />
-        </plugin>
+        <plugin name="cordova-plugin-contacts" source="npm" spec="3.0.1" />
     {{/permissions.contacts}}
 
     {{#permissions.camera}}
         {{#permissions.photoLibrary}}
             {{#permissions.microphone}}
-                <plugin name="cordova-plugin-media-capture" source="npm" spec="3.0.2">
-                    <param name="CAMERA_USAGE_DESCRIPTION" value="This app needs to access your camera" />
-                    <param name="MICROPHONE_USAGE_DESCRIPTION" value="This app needs to access your microphone" />
-                    <param name="PHOTOLIBRARY_USAGE_DESCRIPTION" value="This app needs to access your photo library" />
-                </plugin>
+                <plugin name="cordova-plugin-media-capture" source="npm" spec="3.0.2" />
             {{/permissions.microphone}}
         {{/permissions.photoLibrary}}
     {{/permissions.camera}}
 
     {{#permissions.camera}}
-        <plugin name="phonegap-plugin-barcodescanner" source="npm" spec="8.0.0" >
-            <param name="CAMERA_USAGE_DESCRIPTION" value="This app needs to access your camera" />
-        </plugin>
+        <plugin name="phonegap-plugin-barcodescanner" source="npm" spec="8.0.0" />
     {{/permissions.camera}}
 
     {{#permissions.geoLocation}}
-        <plugin name="cordova-plugin-geolocation" source="npm" spec="4.0.1">
-            <param name="GEOLOCATION_USAGE_DESCRIPTION" value="This app needs to access your location" />
-        </plugin>
+        <plugin name="cordova-plugin-geolocation" source="npm" spec="4.0.1" />
     {{/permissions.geoLocation}}
 
     {{#permissions.microphone}}
@@ -141,9 +128,39 @@
                 <{{{tag}}} src="{{{filename}}}" width="{{{width}}}" height="{{{height}}}" />
             {{/iosImages}}
 
+            {{#permissions.camera}}
+                <edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
+                    <string>This app needs to access your camera</string>
+                </edit-config>
+            {{/permissions.camera}}
+
+            {{#permissions.photoLibrary}}
+                <edit-config target="NSPhotoLibraryUsageDescription" file="*-Info.plist" mode="merge">
+                    <string>This app needs to access your photo library</string>
+                </edit-config>
+            {{/permissions.photoLibrary}}
+
             {{#permissions.push}}
                 <resource-file src="GoogleService-Info.plist" />
             {{/permissions.push}}
+            
+            {{#permissions.contacts}}
+                <edit-config target="NSContactsUsageDescription" file="*-Info.plist" mode="merge">
+                    <string>This app needs to access your contacts</string>
+                </edit-config>
+            {{/permissions.contacts}}
+
+            {{#permissions.microphone}}
+                <edit-config target="NSMicrophoneUsageDescription" file="*-Info.plist" mode="merge">
+                    <string>This app needs to access your microphone</string>
+                </edit-config>
+            {{/permissions.microphone}}
+
+            {{#permissions.geoLocation}}
+                <edit-config target="NSLocationWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
+                    <string>This app needs to access your location</string>
+                </edit-config>
+            {{/permissions.geoLocation}}
         </platform>
     {{/iosEnabled}}
 
