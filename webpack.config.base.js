@@ -6,11 +6,8 @@ var CleanWebpackPlugin = require('clean-webpack-plugin');
 var I18nPlugin = require("i18n-webpack-plugin");
 
 var utils = require("./utils");
-var compile_settings = require("./settings");
 
 module.exports = function(env) {
-    const settings = compile_settings(env);
-
     // Prepare the dist directories. It has to exist before we attempt to create the .zip archive.
     if (!fs.existsSync("dist")) {
         fs.mkdirSync("dist");
