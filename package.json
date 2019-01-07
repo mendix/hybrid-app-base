@@ -14,7 +14,8 @@
     "/src",
     "/*.json",
     "/*.js",
-    "/*.md"
+    "/*.md",
+    "/*.gradle"
   ],
   "dependencies": {
     "android-versions": "^1.3.0",
