@@ -45,21 +45,6 @@ module.exports = function(env) {
                     transform: function (content) {
                         return Mustache.render(content.toString(), settings);
                     }
-                },
-                {
-                    context: path.dirname(google_services_json_path),
-                    from: path.basename(google_services_json_path),
-                    to: path.basename(google_services_json_path)
-                },
-                {
-                    context: path.dirname(google_service_plist_path),
-                    from: path.basename(google_service_plist_path),
-                    to: path.basename(google_service_plist_path)
-                },
-                {
-                    context: path.dirname(build_extras_gradle_path),
-                    from: path.basename(build_extras_gradle_path),
-                    to: path.basename(build_extras_gradle_path)
                 }
             ]),
             new CopyWebpackPlugin( // Resource files
@@ -103,6 +88,30 @@ module.exports = function(env) {
             })
         ]
     });
+
+    if (settings.permissions.push) {
+        config = webpack_merge(config, {
+            plugins: [
+                new CopyWebpackPlugin([
+                    {
+                        context: path.dirname(google_services_json_path),
+                        from: path.basename(google_services_json_path),
+                        to: path.basename(google_services_json_path)
+                    },
+                    {
+                        context: path.dirname(google_service_plist_path),
+                        from: path.basename(google_service_plist_path),
+                        to: path.basename(google_service_plist_path)
+                    },
+                    {
+                        context: path.dirname(build_extras_gradle_path),
+                        from: path.basename(build_extras_gradle_path),
+                        to: path.basename(build_extras_gradle_path)
+                    }
+                ])
+            ]
+        })
+    }
 
     if (!settings.options.debug) {
         config = webpack_merge(config, {

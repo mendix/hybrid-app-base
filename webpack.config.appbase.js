@@ -19,7 +19,6 @@ module.exports = function(env) {
     var settings_template_path = utils.getBaseOrCustomPath("src/www/settings.json.mustache");
     var index_template_path = utils.getBaseOrCustomPath("src/www/index.html.mustache");
     var styles_template_path = utils.getBaseOrCustomPath("src/www/styles/index.css.mustache");
-    var build_extras_gradle_path = utils.getBaseOrCustomPath("build-extras.gradle");
 
     return webpack_merge(base_config(env), {
         devtool: "source-map",
@@ -45,11 +44,6 @@ module.exports = function(env) {
                     context: path.dirname(styles_template_path),
                     from: path.basename(styles_template_path),
                     to: path.normalize("www/css/index.css")
-                },
-                {
-                    context: path.dirname(build_extras_gradle_path),
-                    from: path.basename(build_extras_gradle_path),
-                    to: path.basename(build_extras_gradle_path)
                 }
             ]),
             new HtmlWebpackPlugin({ // Generate the index.html
