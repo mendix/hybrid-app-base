@@ -1,8 +1,6 @@
 var fs = require("fs");
 var path = require("path");
 
-var webpack = require("webpack");
-
 var CopyWebpackPlugin = require("copy-webpack-plugin");
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 var I18nPlugin = require("i18n-webpack-plugin");
