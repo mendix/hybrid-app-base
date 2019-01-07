@@ -143,7 +143,7 @@
             {{#permissions.push}}
                 <resource-file src="GoogleService-Info.plist" />
             {{/permissions.push}}
-            
+
             {{#permissions.contacts}}
                 <edit-config target="NSContactsUsageDescription" file="*-Info.plist" mode="merge">
                     <string>This app needs to access your contacts</string>
@@ -206,9 +206,8 @@
 
             {{#permissions.push}}
                 <resource-file src="config/google-services.json" target="app/google-services.json" />
+                <resource-file src="build-extras.gradle" target="build-extras.gradle" />
             {{/permissions.push}}
-
-            <resource-file src="build-extras.gradle" target="build-extras.gradle" />
         </platform>
     {{/androidEnabled}}
 
