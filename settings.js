@@ -11,8 +11,7 @@ function compile_settings(env) {
     var settings = Object.assign(
         {
             options: {
-                environment: "prod",
-                architecture: "arm"
+                environment: "prod"
             }
         },
         utils.loadConfiguration("config/parameters.json"),
@@ -36,7 +35,12 @@ function compile_settings(env) {
             Object.assign(settings.options, { "environment": env["target"] });
         }
 
-        ["x86", "arm"].forEach(function(architecture) {
+        if (env["arch"]) {
+            Object.assign(settings.options, { "architecture": env["arch"] });
+        }
+
+        // Kept for backwards compatibility; Provides a shortcut for the arch option
+        ["x86", "arm", "x86_64", "arm64"].forEach(function(architecture) {
             if (env[architecture]) {
                 Object.assign(settings.options, { "architecture": architecture });
             }

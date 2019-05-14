@@ -1,5 +1,4 @@
 var path = require("path");
-var util = require("util");
 
 var webpack = require("webpack");
 var webpack_merge = require('webpack-merge');
@@ -10,7 +9,6 @@ var HtmlWebpackPlugin = require("html-webpack-plugin");
 var HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
 
 var Mustache = require("mustache");
-var sanitize = require("sanitize-filename");
 
 var base_config = require("./webpack.config.base");
 
@@ -79,11 +77,7 @@ module.exports = function(env) {
                 append: false
             }),
             new WebpackArchivePlugin({ // Compress everything into a ZIP file that can be uploaded to Phonegap Build
-                output: path.join("dist", util.format("%s-%s-%s-%s",
-                    sanitize(settings.name),
-                    settings.version,
-                    settings.options.environment,
-                    settings.options.architecture)),
+                output: path.join("dist", utils.constructArchiveName(settings)),
                 format: "zip"
             })
         ]

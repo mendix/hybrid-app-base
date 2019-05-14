@@ -29,7 +29,6 @@
 
     <plugin name="com.darktalker.cordova.screenshot" source="npm" spec="0.1.6" />
     <plugin name="com.telerik.plugins.nativepagetransitions" source="npm" spec="0.6.5" />
-    <plugin name="cordova-build-architecture" source="git" spec="https://github.com/MBuchalik/cordova-build-architecture.git#v1.0.4" />
     <plugin name="cordova-plugin-actionsheet" source="npm" spec="2.3.3" />
     <plugin name="cordova-plugin-app-version" source="npm" spec="0.1.9" />
     <plugin name="cordova-plugin-battery-status" source="npm" spec="2.0.2" />
@@ -169,6 +168,8 @@
         <preference name="android-build-tool" value="gradle" />
 
         {{#options.architecture}}
+            <plugin name="cordova-build-architecture" source="git" spec="https://github.com/MBuchalik/cordova-build-architecture.git#v1.0.4" />
+
             <preference name="buildArchitecture" value="{{.}}" />
         {{/options.architecture}}
 

@@ -1,5 +1,6 @@
 var fs = require("fs");
 var path = require("path");
+var sanitize = require("sanitize-filename");
 
 module.exports = (function() {
     var loadConfigFile = function(absolute_path) {
@@ -30,9 +31,24 @@ module.exports = (function() {
         );
     };
 
+    var constructArchiveName = function (settings) {
+        var nameParts = [
+            sanitize(settings.name),
+            settings.version,
+            settings.options.environment
+        ];
+
+        if (settings.options.architecture) {
+            nameParts.push(settings.options.architecture)
+        }
+
+        return nameParts.join("-");
+    };
+
     return {
         getBaseOrCustomPath: getBaseOrCustomPath,
         getBaseAndCustomPaths: getBaseAndCustomPaths,
-        loadConfiguration: loadConfiguration
+        loadConfiguration: loadConfiguration,
+        constructArchiveName: constructArchiveName
     };
 })();
