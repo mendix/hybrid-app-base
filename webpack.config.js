@@ -23,7 +23,7 @@ module.exports = function(env) {
     var styling_path = utils.getBaseOrCustomPath("src/www/styles/");
     var google_services_json_path = utils.getBaseOrCustomPath("config/google-services.json");
     var google_service_plist_path = utils.getBaseOrCustomPath("config/GoogleService-Info.plist");
-    var build_extras_gradle_path = utils.getBaseOrCustomPath("build-extras.gradle");
+    var build_extras_gradle_path = utils.getBaseOrCustomPath("config/build-extras.gradle");
 
     var config = webpack_merge(base_config(env), {
         plugins: [
@@ -100,7 +100,7 @@ module.exports = function(env) {
                     {
                         context: path.dirname(build_extras_gradle_path),
                         from: path.basename(build_extras_gradle_path),
-                        to: path.basename(build_extras_gradle_path)
+                        to: path.join("config", path.basename(build_extras_gradle_path))
                     }
                 ])
             ]
