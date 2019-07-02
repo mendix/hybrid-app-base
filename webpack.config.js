@@ -1,3 +1,4 @@
+var fs = require("fs");
 var path = require("path");
 
 var webpack = require("webpack");
@@ -87,16 +88,18 @@ module.exports = function(env) {
         config = webpack_merge(config, {
             plugins: [
                 new CopyWebpackPlugin([
-                    {
-                        context: path.dirname(google_services_json_path),
-                        from: path.basename(google_services_json_path),
-                        to: path.basename(google_services_json_path)
-                    },
-                    {
-                        context: path.dirname(google_service_plist_path),
-                        from: path.basename(google_service_plist_path),
-                        to: path.basename(google_service_plist_path)
-                    },
+                    ...(fs.existsSync(google_services_json_path) ?
+                        [{
+                            context: path.dirname(google_services_json_path),
+                            from: path.basename(google_services_json_path),
+                            to: path.join("config", path.basename(google_services_json_path))
+                        }] : []),
+                    ...(fs.existsSync(google_service_plist_path) ?
+                        [{
+                            context: path.dirname(google_service_plist_path),
+                            from: path.basename(google_service_plist_path),
+                            to: path.join("config", path.basename(google_service_plist_path))
+                        }] : []),
                     {
                         context: path.dirname(build_extras_gradle_path),
                         from: path.basename(build_extras_gradle_path),
