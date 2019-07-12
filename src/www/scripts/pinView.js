@@ -150,7 +150,7 @@ function moveInputForward(e) {
         let next = target;
         while (next = next.nextElementSibling) {
             if (next.tagName.toLowerCase() === "input") {
-                switchKeyboard(next, "tel");
+                switchToNumericKeyboard(next);
                 next.focus();
                 break;
             }
@@ -170,7 +170,7 @@ function moveInputBackwards(target) {
             break;
         }
         if (prev.tagName.toLowerCase() === "input") {
-            switchKeyboard(prev, "tel");
+            switchToNumericKeyboard(prev);
             prev.focus();
             break;
         }
@@ -197,9 +197,13 @@ function switchKeyboard(target, type) {
     target.setAttribute("type", type);
 }
 
-function switchToNumericKeyboard(e) {
+function switchToNumericKeyboard(target) {
+    switchKeyboard(target, cordova.platformId === "android" ? "number" : "tel");
+}
+
+function touchStartHandler(e) {
     e.target.value = "";
-    switchKeyboard(e.target, "tel");
+    switchToNumericKeyboard(e.target);
 }
 
 function cleanUserInput() {
@@ -220,7 +224,7 @@ function addMoveInputListeners(containerNode) {
     containerNode.addEventListener("keyup", moveInputForward);
     containerNode.addEventListener("keydown", onKeyDownAction);
     containerNode.addEventListener("paste", preventDefaultAction);
-    containerNode.addEventListener("touchstart", switchToNumericKeyboard);
+    containerNode.addEventListener("touchstart", touchStartHandler);
     // Because focus events don't bubble we need to add an event listener
     // for the capturing phase.
     containerNode.addEventListener("focus", clearInput, true);
@@ -230,6 +234,6 @@ function removeMoveInputListeners(containerNode) {
     containerNode.removeEventListener("keyup", moveInputForward);
     containerNode.removeEventListener("keydown", onKeyDownAction);
     containerNode.removeEventListener("paste", preventDefaultAction);
-    containerNode.removeEventListener("touchstart", switchToNumericKeyboard);
+    containerNode.removeEventListener("touchstart", touchStartHandler);
     containerNode.removeEventListener("focus", clearInput, true);
 }
