@@ -145,12 +145,12 @@ function moveInputForward(e) {
         // We would like to have visual feedback of the typed number
         // rather than changing to star immediately
         changeKeyboardToPassword = setTimeout(function() {
-            switchKeyboard(target, "password");
+            hidePinNumber(target);
         }, 500);
         let next = target;
         while (next = next.nextElementSibling) {
             if (next.tagName.toLowerCase() === "input") {
-                switchToNumericKeyboard(next);
+                showPinNumber(next);
                 next.focus();
                 break;
             }
@@ -166,11 +166,11 @@ function moveInputBackwards(target) {
     let prev = target;
     while (prev = prev.previousElementSibling) {
         if (target.nextElementSibling === null && target.value !== "") {
-            switchKeyboard(target, "password");
+            hidePinNumber(target);
             break;
         }
         if (prev.tagName.toLowerCase() === "input") {
-            switchToNumericKeyboard(prev);
+            showPinNumber(prev);
             prev.focus();
             break;
         }
@@ -185,25 +185,21 @@ function onKeyDownAction(e) {
         moveInputBackwards(target);
     } else {
         const prev = target.previousElementSibling;
-        if (prev) switchKeyboard(prev, "password");
+        if (prev) hidePinNumber(prev);
     }
 }
 
-function switchKeyboard(target, type) {
-    // As we want to have the best of both worlds: password protected input and
-    // numeric keyboard; we dynamically switch the type of input field. This
-    // hack allows us to have instant protection of the fields, while the
-    // text-security works with a noticeable delay
-    target.setAttribute("type", type);
+function hidePinNumber(target) {
+    target.classList.add("mx-hybridapp-formgroup-input-protected");
 }
 
-function switchToNumericKeyboard(target) {
-    switchKeyboard(target, cordova.platformId === "android" ? "number" : "tel");
+function showPinNumber(target) {
+    target.classList.remove("mx-hybridapp-formgroup-input-protected");
 }
 
 function touchStartHandler(e) {
     e.target.value = "";
-    switchToNumericKeyboard(e.target);
+    showPinNumber(e.target);
 }
 
 function cleanUserInput() {
