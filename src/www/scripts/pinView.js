@@ -145,12 +145,12 @@ function moveInputForward(e) {
         // We would like to have visual feedback of the typed number
         // rather than changing to star immediately
         changeKeyboardToPassword = setTimeout(function() {
-            switchKeyboard(target, "password");
+            hidePinNumber(target);
         }, 500);
         let next = target;
         while (next = next.nextElementSibling) {
             if (next.tagName.toLowerCase() === "input") {
-                switchKeyboard(next, "tel");
+                showPinNumber(next);
                 next.focus();
                 break;
             }
@@ -166,11 +166,11 @@ function moveInputBackwards(target) {
     let prev = target;
     while (prev = prev.previousElementSibling) {
         if (target.nextElementSibling === null && target.value !== "") {
-            switchKeyboard(target, "password");
+            hidePinNumber(target);
             break;
         }
         if (prev.tagName.toLowerCase() === "input") {
-            switchKeyboard(prev, "tel");
+            showPinNumber(prev);
             prev.focus();
             break;
         }
@@ -185,21 +185,21 @@ function onKeyDownAction(e) {
         moveInputBackwards(target);
     } else {
         const prev = target.previousElementSibling;
-        if (prev) switchKeyboard(prev, "password");
+        if (prev) hidePinNumber(prev);
     }
 }
 
-function switchKeyboard(target, type) {
-    // As we want to have the best of both worlds: password protected input and
-    // numeric keyboard; we dynamically switch the type of input field. This
-    // hack allows us to have instant protection of the fields, while the
-    // text-security works with a noticeable delay
-    target.setAttribute("type", type);
+function hidePinNumber(target) {
+    target.classList.add("mx-hybridapp-formgroup-input-protected");
 }
 
-function switchToNumericKeyboard(e) {
+function showPinNumber(target) {
+    target.classList.remove("mx-hybridapp-formgroup-input-protected");
+}
+
+function touchStartHandler(e) {
     e.target.value = "";
-    switchKeyboard(e.target, "tel");
+    showPinNumber(e.target);
 }
 
 function cleanUserInput() {
@@ -220,7 +220,7 @@ function addMoveInputListeners(containerNode) {
     containerNode.addEventListener("keyup", moveInputForward);
     containerNode.addEventListener("keydown", onKeyDownAction);
     containerNode.addEventListener("paste", preventDefaultAction);
-    containerNode.addEventListener("touchstart", switchToNumericKeyboard);
+    containerNode.addEventListener("touchstart", touchStartHandler);
     // Because focus events don't bubble we need to add an event listener
     // for the capturing phase.
     containerNode.addEventListener("focus", clearInput, true);
@@ -230,6 +230,6 @@ function removeMoveInputListeners(containerNode) {
     containerNode.removeEventListener("keyup", moveInputForward);
     containerNode.removeEventListener("keydown", onKeyDownAction);
     containerNode.removeEventListener("paste", preventDefaultAction);
-    containerNode.removeEventListener("touchstart", switchToNumericKeyboard);
+    containerNode.removeEventListener("touchstart", touchStartHandler);
     containerNode.removeEventListener("focus", clearInput, true);
 }
