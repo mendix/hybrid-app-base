@@ -36,10 +36,9 @@
     "style-loader": "^0.13.2",
     "tiny-emitter": "^1.1.0",
     "webpack": "^3.0.0",
-    "webpack-archive-plugin": "^3.0.0",
-    "webpack-merge": "^4.1.0"
+    "webpack-merge": "^4.1.0",
+    "zip-webpack-plugin": "^2.0.0"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git@github.com:mendix/hybrid-app-base.git"
