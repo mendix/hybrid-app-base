@@ -60,7 +60,7 @@ module.exports = function(env) {
             }),
             new ZipPlugin({
               path: "../dist",
-              filename: `${util.format("appbase-%s", package_config.version)}.zip`
+              filename: util.format("appbase-%s", package_config.version)
             }),
             new UglifyJSPlugin({
                 sourceMap: true

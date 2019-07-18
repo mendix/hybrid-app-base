@@ -5,7 +5,7 @@ var webpack = require("webpack");
 var webpack_merge = require('webpack-merge');
 
 var CopyWebpackPlugin = require("copy-webpack-plugin");
-var WebpackArchivePlugin = require("webpack-archive-plugin");
+var ZipPlugin = require("zip-webpack-plugin");
 var HtmlWebpackPlugin = require("html-webpack-plugin");
 var HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
 
@@ -77,10 +77,10 @@ module.exports = function(env) {
                 ],
                 append: false
             }),
-            new WebpackArchivePlugin({ // Compress everything into a ZIP file that can be uploaded to Phonegap Build
-                output: path.join("dist", utils.constructArchiveName(settings)),
-                format: "zip"
-            })
+            new ZipPlugin({
+                path: "../dist",
+                filename: utils.constructArchiveName(settings)
+              })
         ]
     });
 
