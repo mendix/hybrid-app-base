@@ -12,7 +12,7 @@ const confirmPinButton = document.getElementById("mx-confirm-pin");
 const forgotPinButton = document.getElementById("mx-forgot-pin");
 const userInput = document.querySelectorAll("#mx-pin-container input");
 
-userInput.forEach(input => input.type = cordova.platformId == "android" ? "number" : "tel"); 
+Array.prototype.forEach.call(userInput, input => input.type = cordova.platformId == "android" ? "number" : "tel");
 
 export function verify () {
     return new Promise((resolve, reject) => {
