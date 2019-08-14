@@ -763,7 +763,7 @@ module.exports = (function() {
                         resolve();
                     });
                 });
-                if (cordova.platformId === "android") {
+                if (window.cookies && cordova.platformId === "android") {
                     await new Promise((resolve) => {
                         console.info("Will remove Crosswalk cookies");
                         window.cookies.clear(resolve, () => {
