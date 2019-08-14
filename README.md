@@ -27,6 +27,12 @@ $ npm install                       # install dependencies
 $ npm run appbase                   # create templated PGB package in `dist`
 ```
 
+## Frequently Asked Questions
+
+### Building for iOS fails as a result of a "Missing or Invalid Team" configuration
+
+This can be circumvented by opening the `.xcworkspace` project located in the `build/platforms/ios` directory with XCode and configuring the Development team in the project settings.
+
 ## Mendix-specific forks of Cordova/Phonegap plugins
 
 Mendix hybrid apps include a number of plugins by default.
