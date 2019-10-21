@@ -76,11 +76,7 @@ module.exports = function(env) {
                     { path: 'www/css', glob: '**/*.css', globPath: path.normalize('src/www/styles/') }
                 ],
                 append: false
-            }),
-            new ZipPlugin({
-                path: "../dist",
-                filename: utils.constructArchiveName(settings)
-              })
+            })
         ]
     });
 
@@ -109,6 +105,15 @@ module.exports = function(env) {
             ]
         })
     }
+
+    config = webpack_merge(config,{
+        plugins: [
+            new ZipPlugin({
+                path: "../dist",
+                filename: utils.constructArchiveName(settings)
+              })
+        ] 
+    })
 
     if (!settings.options.debug) {
         config = webpack_merge(config, {
