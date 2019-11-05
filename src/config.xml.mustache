@@ -208,6 +208,7 @@
 
             {{#permissions.push}}
                 <resource-file src="config/google-services.json" target="app/google-services.json" />
+                <hook type="after_prepare" src="scripts/before_build.js" />
             {{/permissions.push}}
         </platform>
     {{/androidEnabled}}
