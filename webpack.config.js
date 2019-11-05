@@ -25,6 +25,7 @@ module.exports = function(env) {
     var google_services_json_path = utils.getBaseOrCustomPath("config/google-services.json");
     var google_service_plist_path = utils.getBaseOrCustomPath("config/GoogleService-Info.plist");
     var build_extras_gradle_path = utils.getBaseOrCustomPath("config/build-extras.gradle");
+    var before_build_script_path = utils.getBaseOrCustomPath("scripts/before_build.js");
 
     var config = webpack_merge(base_config(env), {
         plugins: [
@@ -100,20 +101,25 @@ module.exports = function(env) {
                         context: path.dirname(build_extras_gradle_path),
                         from: path.basename(build_extras_gradle_path),
                         to: path.join("config", path.basename(build_extras_gradle_path))
+                    },
+                    {
+                        context: path.dirname(before_build_script_path),
+                        from: path.basename(before_build_script_path),
+                        to: path.join("scripts", path.basename(before_build_script_path))
                     }
                 ])
             ]
-        })
+        });
     }
 
-    config = webpack_merge(config,{
+    config = webpack_merge(config, {
         plugins: [
             new ZipPlugin({
                 path: "../dist",
                 filename: utils.constructArchiveName(settings)
-              })
-        ] 
-    })
+            })
+        ]
+    });
 
     if (!settings.options.debug) {
         config = webpack_merge(config, {
@@ -130,7 +136,7 @@ module.exports = function(env) {
                     }
                 })
             ]
-        })
+        });
     }
 
     return config;
