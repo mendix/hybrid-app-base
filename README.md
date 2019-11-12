@@ -38,7 +38,7 @@ The list below outlines the details per forked plugin.
 ### cordova-plugin-wkwebview-engine
 
 - [Original repository](https://github.com/apache/cordova-plugin-wkwebview-engine)
-- [Forked library](https://www.npmjs.com/package/cordova-plugin-wkwebview-engine-mx) (code is in internal repository)
+- [Forked library](https://www.npmjs.com/package/@mendix/cordova-plugin-wkwebview-engine-mx) (code is in internal repository)
 
 We implemented XHR request handling using native code, while keeping support for cookies.
 
