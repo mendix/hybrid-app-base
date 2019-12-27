@@ -1,7 +1,6 @@
 "use strict";
 import "babel-polyfill";
 
-import Emitter from 'tiny-emitter';
 import TokenStore from "./Token-store";
 
 import Pin from "./pin";
@@ -9,6 +8,23 @@ import * as PinView from "./pinView";
 import SecureStore from "./secure-store";
 import FileStore from "./file-store";
 import LocalStore from "./local-store";
+
+function Emitter() {
+    let events = {};
+    return {
+        on: (eventName, callback) => {
+            events[eventName] = [...(events[eventName] || []), callback];
+            return this;
+        },
+        emit: async (eventName, ...args) => {
+            const callbacks = events[eventName];
+            if (callbacks && callbacks.length > 0) {
+                return await Promise.all(callbacks.map(callback => callback(...args)));
+            }
+            return Promise.resolve();
+        }
+    };
+}
 
 module.exports = (function() {
     var defaultConfig = {
@@ -151,7 +167,7 @@ module.exports = (function() {
     };
 
     var _startup = function(config, url, appUrl, enableOffline, requirePin) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(async function(resolve, reject) {
             window.dojoConfig = {
                 appbase: url,
                 remotebase: appUrl,
@@ -324,7 +340,7 @@ module.exports = (function() {
                 }
             }
 
-            emitter.emit("onConfigReady", window.dojoConfig);
+            await emitter.emit("onConfigReady", window.dojoConfig);
 
             // Because loading all app scripts takes quite a while we do that first and defer removing our
             // own styles and scripts until mx exists.  We need to hold on to our own styles as long as we
@@ -332,7 +348,7 @@ module.exports = (function() {
             addScripts(url, config.cachebust, config.files.js);
             pollUntil(200, 20, function() {
                 return typeof mx !== "undefined";
-            }, function() {
+            }, async function() {
                 if (!isAfterNavigationFnSupported()) {
                     removeSelf();
                 }
@@ -344,7 +360,7 @@ module.exports = (function() {
                     replaceEventHandler("backbutton", handleBackButton, handleBackButtonForApp);
                 }
 
-                emitter.emit("onClientReady", window.mx);
+                await emitter.emit("onClientReady", window.mx);
 
                 resolve();
             }, function() {
@@ -910,7 +926,7 @@ module.exports = (function() {
         });
     };
 
-    let emitter = new Emitter();
+    const emitter = new Emitter();
     let onAppUpdateAvailableFn;
 
     return {
