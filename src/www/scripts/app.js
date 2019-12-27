@@ -865,6 +865,8 @@ module.exports = (function() {
         }
 
         try {
+            await emitter.emit("onBeforeSynchonization");
+
             console.info("Syncing and starting up");
 
             await syncAndStartup();
@@ -931,6 +933,7 @@ module.exports = (function() {
 
     return {
         initialize: initialize,
+        onBeforeSynchonization: emitter.on.bind(emitter, "onBeforeSynchonization"),
         onConfigReady: emitter.on.bind(emitter, "onConfigReady"),
         onClientReady: emitter.on.bind(emitter, "onClientReady"),
         onAppUpdateAvailable: (fn) => onAppUpdateAvailableFn = fn
