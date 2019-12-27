@@ -632,10 +632,14 @@ module.exports = (function() {
         }
     };
 
+    var normalizeTrailingSlash = function(path) {
+        return path.replace(/\/$/, "") + "/";
+    };
+
     var setupDirectoryLocations = function() {
         if (cordova.wkwebview) {
-            cacheDirectory = cordova.wkwebview.storageDir;
-            documentDirectory = cordova.wkwebview.storageDir;
+            cacheDirectory = normalizeTrailingSlash(cordova.wkwebview.storageDir);
+            documentDirectory = normalizeTrailingSlash(cordova.wkwebview.storageDir);
         } else if (cordova.file) {
             cacheDirectory = cordova.file.dataDirectory;
             documentDirectory = cordova.file.externalDataDirectory || cordova.file.dataDirectory;
