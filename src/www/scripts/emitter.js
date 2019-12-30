@@ -11,11 +11,8 @@ module.exports = (function() {
     }
 
     Emitter.prototype.emit = async (eventName, ...args) => {
-        const callbacks = events[eventName];
-        if (callbacks && callbacks.length > 0) {
-            return await Promise.all(callbacks.map(callback => callback(...args)));
-        }
-        return Promise.resolve();
+        const callbacks = events[eventName] || [];
+        return await Promise.all(callbacks.map(callback => callback(...args)));
     }
 
     return Emitter;
