@@ -1,6 +1,6 @@
 "use strict";
 import "babel-polyfill";
-
+import Emitter from "./emitter";
 import TokenStore from "./Token-store";
 
 import Pin from "./pin";
@@ -8,23 +8,6 @@ import * as PinView from "./pinView";
 import SecureStore from "./secure-store";
 import FileStore from "./file-store";
 import LocalStore from "./local-store";
-
-function Emitter() {
-    let events = {};
-    return {
-        on: (eventName, callback) => {
-            events[eventName] = [...(events[eventName] || []), callback];
-            return this;
-        },
-        emit: async (eventName, ...args) => {
-            const callbacks = events[eventName];
-            if (callbacks && callbacks.length > 0) {
-                return await Promise.all(callbacks.map(callback => callback(...args)));
-            }
-            return Promise.resolve();
-        }
-    };
-}
 
 module.exports = (function() {
     var defaultConfig = {
