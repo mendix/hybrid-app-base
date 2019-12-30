@@ -516,7 +516,7 @@ module.exports = (function() {
 
     var removeRecursively = withProgressMessage(_removeRecursively, __("Optimizing for your device..."));
 
-    var unzip = function(sourceUri, destinationUri) {
+    var unzip = function(sourceUri, destinationUri, progressHandler) {
         return new Promise(function(resolve, reject) {
             zip.unzip(sourceUri, destinationUri, function(result) {
                 if (result === 0) {
@@ -524,13 +524,13 @@ module.exports = (function() {
                 } else {
                     reject();
                 }
-            }, createOnProgressHandler(__("Optimizing for your device")));
+            }, progressHandler);
         });
     };
 
     var synchronizePackage = function(sourceUri, destinationUri) {
         function safeUnzip() {
-            return unzip(destinationUri, resourcesDirectory)
+            return unzip(destinationUri, resourcesDirectory, createOnProgressHandler(__("Optimizing for your device")))
                 .catch(function(e) {
                     removeRecursively(resourcesDirectory);
                     throw e;
@@ -726,6 +726,8 @@ module.exports = (function() {
 
         setupDirectoryLocations();
 
+        await unpackLocalResources();
+
         const fileTokenStore = new TokenStore(FileStore);
         const localTokenStore = new TokenStore(LocalStore);
         const secureTokenStore = requirePin ? new TokenStore(SecureStore) : undefined;
@@ -863,6 +865,20 @@ module.exports = (function() {
 
             window.location.reload(true);
         }
+    };
+
+    const _fileExists = function(path) {
+        return new Promise((resolve, reject) => window.resolveLocalFileSystemURL(path, resolve, reject));
+    };
+
+    const unpackLocalResources = async function() {
+        const sourceUri = documentDirectory + "../resources.zip";
+        try {
+            if (cordova.platformId === "ios" && await _fileExists(sourceUri)) {
+                await unzip(sourceUri, resourcesDirectory, () => {}).catch(e => _removeRecursively(resourcesDirectory));
+                await removeFile(sourceUri);
+            }    
+        } catch (e) {}
     };
 
     const createSessionWithCredentials = function(url, username, password) {
