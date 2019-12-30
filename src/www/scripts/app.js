@@ -1,7 +1,6 @@
 "use strict";
 import "babel-polyfill";
-
-import Emitter from 'tiny-emitter';
+import Emitter from "./emitter";
 import TokenStore from "./Token-store";
 
 import Pin from "./pin";
@@ -151,7 +150,7 @@ module.exports = (function() {
     };
 
     var _startup = function(config, url, appUrl, enableOffline, requirePin) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(async function(resolve, reject) {
             window.dojoConfig = {
                 appbase: url,
                 remotebase: appUrl,
@@ -324,7 +323,7 @@ module.exports = (function() {
                 }
             }
 
-            emitter.emit("onConfigReady", window.dojoConfig);
+            await emitter.emit("onConfigReady", window.dojoConfig);
 
             // Because loading all app scripts takes quite a while we do that first and defer removing our
             // own styles and scripts until mx exists.  We need to hold on to our own styles as long as we
@@ -332,7 +331,7 @@ module.exports = (function() {
             addScripts(url, config.cachebust, config.files.js);
             pollUntil(200, 20, function() {
                 return typeof mx !== "undefined";
-            }, function() {
+            }, async function() {
                 if (!isAfterNavigationFnSupported()) {
                     removeSelf();
                 }
@@ -344,7 +343,7 @@ module.exports = (function() {
                     replaceEventHandler("backbutton", handleBackButton, handleBackButtonForApp);
                 }
 
-                emitter.emit("onClientReady", window.mx);
+                await emitter.emit("onClientReady", window.mx);
 
                 resolve();
             }, function() {
@@ -632,10 +631,14 @@ module.exports = (function() {
         }
     };
 
+    var normalizeTrailingSlash = function(path) {
+        return path.replace(/\/$/, "") + "/";
+    };
+
     var setupDirectoryLocations = function() {
         if (cordova.wkwebview) {
-            cacheDirectory = cordova.wkwebview.storageDir;
-            documentDirectory = cordova.wkwebview.storageDir;
+            cacheDirectory = normalizeTrailingSlash(cordova.wkwebview.storageDir);
+            documentDirectory = normalizeTrailingSlash(cordova.wkwebview.storageDir);
         } else if (cordova.file) {
             cacheDirectory = cordova.file.dataDirectory;
             documentDirectory = cordova.file.externalDataDirectory || cordova.file.dataDirectory;
@@ -845,6 +848,8 @@ module.exports = (function() {
         }
 
         try {
+            await emitter.emit("onBeforeSynchonization");
+
             console.info("Syncing and starting up");
 
             await syncAndStartup();
@@ -906,11 +911,12 @@ module.exports = (function() {
         });
     };
 
-    let emitter = new Emitter();
+    const emitter = new Emitter();
     let onAppUpdateAvailableFn;
 
     return {
         initialize: initialize,
+        onBeforeSynchonization: emitter.on.bind(emitter, "onBeforeSynchonization"),
         onConfigReady: emitter.on.bind(emitter, "onConfigReady"),
         onClientReady: emitter.on.bind(emitter, "onClientReady"),
         onAppUpdateAvailable: (fn) => onAppUpdateAvailableFn = fn
