@@ -15,6 +15,7 @@ module.exports = function(env) {
 
     var default_splash_path = utils.getBaseOrCustomPath("src/resources/splash.png");
     var styling_path = utils.getBaseOrCustomPath("src/www/styles/");
+    var default_resources_path = utils.getBaseOrCustomPath("src/www/resources.zip");
 
     // Build the configuration object.
     var config = {
@@ -87,7 +88,13 @@ module.exports = function(env) {
                     context: path.dirname(styling_path),
                     from: '**/*.css',
                     to: path.normalize("www/css/[name].css")
-                }
+                },
+                ...(fs.existsSync(default_resources_path) ?
+                        [{
+                            context: path.dirname(default_resources_path),
+                            from: path.basename(default_resources_path),
+                            to: path.normalize("www/resources.zip")
+                        }] : []),
             ])
         ]
     };
