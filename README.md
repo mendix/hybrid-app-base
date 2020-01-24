@@ -62,3 +62,10 @@ We added support for cordova-android 7+.
 - [Forked repository](https://github.com/mendix/phonegap-plugin-push)
 
 We unpinned the version of the Android support v13 library.
+
+### cordova-plugin-secure-storage
+
+- [Original repository](https://github.com/Crypho/cordova-plugin-secure-storage)
+- [Forked library](https://github.com/mendix/cordova-plugin-secure-storage)
+
+We added support for Android 10
