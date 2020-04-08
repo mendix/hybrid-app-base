@@ -16,9 +16,9 @@
     Instead, Phonegap Build derives the platform versions from the CLI
     defaults.
     -->
-    <preference name="phonegap-version" value="cli-8.1.1" />
-    <engine name="android" spec="7.1.4" />
-    <engine name="ios" spec="4.5.5" />
+    <preference name="phonegap-version" value="cli-9.0.0" />
+    <engine name="android" spec="8.1.0" />
+    <engine name="ios" spec="5.1.1" />
 
     <!-- allow assets to be loaded and open links in the app itself, see: http://phonegap.com/blog/2012/03/20/access-tags/ -->
     <!-- Issue 204079: Allow retrieval of any resource. Custom widgets can point to anything. -->
@@ -29,7 +29,7 @@
     <allow-navigation href="about:*" />
 
     <plugin name="com.darktalker.cordova.screenshot" source="npm" spec="0.1.6" />
-    <plugin name="com.telerik.plugins.nativepagetransitions" source="npm" spec="0.6.5" />
+    <plugin name="com.telerik.plugins.nativepagetransitions" spec="https://github.com/mendix/NativePageTransitions.git" />
     <plugin name="cordova-plugin-actionsheet" source="npm" spec="2.3.3" />
     <plugin name="cordova-plugin-app-version" source="npm" spec="0.1.9" />
     <plugin name="cordova-plugin-battery-status" source="npm" spec="2.0.2" />
@@ -42,14 +42,14 @@
     <plugin name="cordova-plugin-file-opener2" source="npm" spec="2.0.19" />
     <plugin name="cordova-plugin-file-transfer" source="npm" spec="1.7.1" />
     <plugin name="cordova-plugin-globalization" source="npm" spec="1.11.0" />
-    <plugin name="cordova-plugin-inappbrowser" spec="https://github.com/mendix/cordova-plugin-inappbrowser.git" />
+    <plugin name="cordova-plugin-inappbrowser" source="npm" spec="3.2.0" />
     <plugin name="cordova-plugin-network-information" source="npm" spec="2.0.1" />
     <plugin name="cordova-plugin-secure-storage" spec="https://github.com/mendix/cordova-plugin-secure-storage.git" />
     <plugin name="cordova-plugin-spinner" source="npm" spec="1.1.0" />
     <plugin name="cordova-plugin-splashscreen" source="npm" spec="5.0.2" />
     <plugin name="cordova-plugin-statusbar" source="npm" spec="2.4.2" />
     <plugin name="cordova-plugin-vibration" source="npm" spec="3.1.0" />
-    <plugin name="cordova-plugin-x-socialsharing" source="npm" version="5.4.0"/>
+    <plugin name="cordova-plugin-x-socialsharing" source="npm" version="5.6.4"/>
     <plugin name="cordova-plugin-zip" source="npm" spec="3.1.0" />
     <plugin name="@mendix/cordova-sqlite-storage" source="npm" spec="2.0.4-mx.1.1.0" />
     <plugin name="@mendix/uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm" spec="4.2.2-mx.1.0.0" />
@@ -113,6 +113,8 @@
         <preference name="BackupWebStorage" value="none" />
 
         <plugin name="@mendix/cordova-plugin-wkwebview-engine" source="npm" spec="1.0.3-mx.1.2.3" />
+
+        <preference name="WKWebViewOnly" value="true" />
 
         <!-- Enable WKWebView on iOS -->
         <feature name="CDVWKWebViewEngine">
