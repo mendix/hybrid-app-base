@@ -36,7 +36,7 @@
     "sanitize-filename": "^1.6.1",
     "style-loader": "^0.13.2",
     "webpack": "^3.0.0",
-    "webpack-merge": "^4.1.0",
+    "webpack-merge": "^4.2.2",
     "zip-webpack-plugin": "^2.0.0"
   },
   "repository": {
