@@ -189,13 +189,21 @@ module.exports = (function() {
                             location: 2
                         });
 
-                        window.onbeforeunload = function(e) {
+                        document.addEventListener("pause", function() {
                             db.close(function() {
                                 console.log("DB closed!");
                             }, function(error) {
                                 console.log("Error closing DB: " + error.message);
                             });
-                        };
+                        });
+
+                        document.addEventListener("resume", function() {
+                            db = window.sqlitePlugin.openDatabase({
+                                name: "MendixDatabase.db",
+                                location: 2
+                            });
+                            console.log("DB opened!");
+                        });
 
                         return db;
                     }
@@ -877,7 +885,7 @@ module.exports = (function() {
             if (cordova.platformId === "ios" && await _fileExists(sourceUri)) {
                 await unzip(sourceUri, resourcesDirectory, () => {}).catch(e => _removeRecursively(resourcesDirectory));
                 await removeFile(sourceUri);
-            }    
+            }
         } catch (e) {}
     };
 
