@@ -16,9 +16,12 @@ module.exports = (function() {
             window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
                 fs.root.getFile(".mx-token", { create: true, exclusive: false }, function (fileEntry) {
                     fileEntry.createWriter(function (fileWriter) {
-                        fileWriter.onwriteend = resolve;
                         fileWriter.onerror = reject;
-                        fileWriter.write(value);
+                        fileWriter.onwriteend = function(){
+                            fileWriter.onwriteend = resolve;
+                            fileWriter.write(value);
+                        }
+                        fileWriter.truncate(0);
                     });
                 }, reject);
             }, reject);

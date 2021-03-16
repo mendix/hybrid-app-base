@@ -241,7 +241,7 @@ module.exports = (function() {
                 },
                 afterLoginFn: function() {
                     /*
-                     * If defined, this function is invoked after sucessful login,
+                     * If defined, this function is invoked after successful login,
                      * instead of `startup` call. As below, the example can be a PIN
                      * setting page.
                      */
