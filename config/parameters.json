@@ -16,7 +16,7 @@
     "geoLocation": true,
     "microphone": true,
     "photoLibrary": true,
-    "push": true
+    "push": false
   },
   "theme" : {
     "background" : "#0595DB",
