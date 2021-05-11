@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = (function() {
+export default (function () {
     var tokenKey = "mx-authtoken";
 
     var TokenStore = function(store) {

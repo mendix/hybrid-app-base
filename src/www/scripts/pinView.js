@@ -1,7 +1,7 @@
 /* global __ */
 "use strict";
 
-import Pin from "./pin";
+const Pin = require("./pin");
 
 const clickType = typeof document.ontouchstart === "undefined" ? "click" : "touchstart";
 let changeKeyboardToPassword;

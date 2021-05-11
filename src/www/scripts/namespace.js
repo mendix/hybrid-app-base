@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = (function() {
+export default (function () {
     var getNamespace = function() {
         return new Promise(function(resolve, reject) {
             return cordova.getAppVersion.getPackageName(resolve);

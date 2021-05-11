@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = (function() {
+export default (function () {
     const events = {};
 
     const Emitter = function() {};

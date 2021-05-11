@@ -1,15 +1,15 @@
 "use strict";
-import "babel-polyfill";
+// import "core-js/stable";
+// import "regenerator-runtime/runtime";
 import Emitter from "./emitter";
 import TokenStore from "./Token-store";
-
 import Pin from "./pin";
 import * as PinView from "./pinView";
 import SecureStore from "./secure-store";
 import FileStore from "./file-store";
 import LocalStore from "./local-store";
 
-module.exports = (function() {
+export default (function () {
     var defaultConfig = {
             files: {
                 js: ["mxclientsystem/mxui/mxui.js"],
