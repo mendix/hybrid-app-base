@@ -78,7 +78,8 @@ module.exports = function (env) {
                     {
                         context: path.dirname(styling_path),
                         from: '**/*.css',
-                        to: path.normalize("www/css/[name].css")
+                        to: path.normalize("www/css/[name].css"),
+                        noErrorOnMissing: true
                     },
                 ]
             }),
@@ -90,7 +91,7 @@ module.exports = function (env) {
             new HtmlWebpackTagsPlugin({ // Copy styling files
                 assets: [
                     "www/css/index.css",
-                    {path: 'www/css', glob: '**/*.css', globPath: path.normalize('src/www/styles/')}
+                    {path: 'www/css', glob: '**/*.css', globPath: path.normalize('src/www/styles/'), noErrorOnMissing: true}
                 ],
                 append: false
             })

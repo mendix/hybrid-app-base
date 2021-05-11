@@ -1,4 +1,4 @@
-module.exports = (function() {
+export default (function () {
     var loadJSON = function(file, callback) {
 
         var request = new XMLHttpRequest();

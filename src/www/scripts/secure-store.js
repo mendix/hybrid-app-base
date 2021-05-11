@@ -2,7 +2,7 @@
 
 var namespacePromises = {};
 
-module.exports = (function() {
+export default (function () {
     var getStorage = function(namespace) {
         if (!namespacePromises[namespace]) {
             namespacePromises[namespace] = new Promise(function (resolve, reject) {

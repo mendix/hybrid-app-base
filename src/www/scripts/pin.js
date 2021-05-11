@@ -1,11 +1,12 @@
 "use strict";
 
-var secureStore = require("./secure-store");
-var namespace = require("./namespace");
+import secureStore from "./secure-store";
+
+import namespace from "./namespace";
 
 var pinKey = "pin";
 
-module.exports = (function() {
+export default (function () {
     var removePin = function() {
         return namespace.get().then(function(storageNamespace) {
             return Promise.all([
