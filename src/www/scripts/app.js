@@ -174,7 +174,7 @@ module.exports = (function() {
                         downloadFileFn: function(src, dst, callback, error) {
                             var fileTransfer = new FileTransfer();
                             fileTransfer.download(
-                                appUrl + src,
+                                encodeURI(appUrl + src),
                                 documentDirectory + "files/" + dst,
                                 callback,
                                 error
@@ -313,7 +313,7 @@ module.exports = (function() {
                         var tmpFile = cordova.file.tempDirectory + "img" + (+new Date()) + "-" + sequence++;
 
                         // Workaround for issue introduced in 7.0.0, where url was of the wrong type (object instead of string)
-                        url = (typeof url === 'string') ? url : url["0"];
+                        url = encodeURI((typeof url === 'string') ? url : url["0"]);
 
                         fileTransfer.download(url, tmpFile, function(fileEntry) {
                             fileEntry.file(function(file) {
@@ -486,7 +486,7 @@ module.exports = (function() {
         return new Promise(function(resolve, reject) {
             var fileTransfer = new FileTransfer();
             fileTransfer.onprogress = onprogress;
-            fileTransfer.download(sourceUri, destinationUri, resolve, reject, trustAllHosts, options);
+            fileTransfer.download(encodeURI(sourceUri), destinationUri, resolve, reject, trustAllHosts, options);
         });
     };
 
