@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const util = require("util");
 
 let { merge: webpack_merge } = require("webpack-merge");
@@ -63,7 +64,21 @@ module.exports = function (env) {
             }),
             new HtmlWebpackTagsPlugin({
                 // Copy styling files
-                tags: ["www/css/index.css"],
+                links: ["www/css/index.css"],
+                ...{
+                    ...(containsCssFiles("src/www/styles")
+                        ? {
+                              tags: [
+                                  {
+                                      path: "www/css",
+                                      glob: "**/*.css",
+                                      globPath: path.normalize("src/www/styles"),
+                                      type: "css",
+                                  },
+                              ],
+                          }
+                        : undefined),
+                },
                 append: false,
             }),
             new ZipPlugin({
@@ -73,3 +88,8 @@ module.exports = function (env) {
         ],
     });
 };
+
+function containsCssFiles(dir) {
+    const files = fs.readdirSync(dir);
+    return files.some((fn) => path.extname(fn) === ".css");
+}

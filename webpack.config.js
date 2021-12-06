@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 
 let { merge: webpack_merge } = require("webpack-merge");
 
@@ -97,15 +98,22 @@ module.exports = function (env) {
             ),
             new HtmlWebpackTagsPlugin({
                 // Copy styling files
-                assets: [
-                    "www/css/index.css",
-                    {
-                        path: "www/css",
-                        glob: "**/*.css",
-                        globPath: path.normalize("src/www/styles/"),
-                        noErrorOnMissing: true,
-                    },
-                ],
+                // Copy styling files
+                links: ["www/css/index.css"],
+                ...{
+                    ...(containsCssFiles("src/www/styles")
+                        ? {
+                              tags: [
+                                  {
+                                      path: "www/css",
+                                      glob: "**/*.css",
+                                      globPath: path.normalize("src/www/styles"),
+                                      type: "css",
+                                  },
+                              ],
+                          }
+                        : undefined),
+                },
                 append: false,
             }),
         ],
@@ -173,3 +181,8 @@ module.exports = function (env) {
 
     return config;
 };
+
+function containsCssFiles(dir) {
+    const files = fs.readdirSync(dir);
+    return files.some((fn) => path.extname(fn) === ".css");
+}
