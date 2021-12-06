@@ -1,13 +1,13 @@
 const path = require("path");
 const util = require("util");
 
-let {merge: webpack_merge} = require('webpack-merge');
+let { merge: webpack_merge } = require("webpack-merge");
 
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const ZipPlugin = require("zip-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
+const HtmlWebpackTagsPlugin = require("html-webpack-tags-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 
 const base_config = require("./webpack.config.base");
 const package_config = require("./package.json");
@@ -24,50 +24,52 @@ module.exports = function (env) {
         devtool: "source-map",
         optimization: {
             minimize: true,
-            minimizer: [new TerserPlugin({
-                parallel: 2,
-                terserOptions: {
-                    ecma: 5,
-                    toplevel: true
-                }
-            })],
+            minimizer: [
+                new TerserPlugin({
+                    parallel: 2,
+                    terserOptions: {
+                        ecma: 5,
+                        toplevel: true,
+                    },
+                }),
+            ],
         },
         plugins: [
             new CopyWebpackPlugin({
-                patterns: [ // Process and copy the config.xml file
+                patterns: [
+                    // Process and copy the config.xml file
                     {
                         context: path.dirname(config_template_path),
                         from: path.basename(config_template_path),
-                        to: "config.xml"
+                        to: "config.xml",
                     },
                     {
                         context: path.dirname(settings_template_path),
                         from: path.basename(settings_template_path),
-                        to: path.normalize("www/settings.json")
+                        to: path.normalize("www/settings.json"),
                     },
                     {
                         context: path.dirname(styles_template_path),
                         from: path.basename(styles_template_path),
-                        to: path.normalize("www/css/index.css")
-                    }
-                ]
+                        to: path.normalize("www/css/index.css"),
+                    },
+                ],
             }),
-            new HtmlWebpackPlugin({ // Generate the index.html
+            new HtmlWebpackPlugin({
+                // Generate the index.html
                 filename: "www/index.html",
                 inject: "body",
                 template: index_template_path,
             }),
-            new HtmlWebpackTagsPlugin({ // Copy styling files
-                tags: [
-                    "www/css/index.css"
-                ],
+            new HtmlWebpackTagsPlugin({
+                // Copy styling files
+                tags: ["www/css/index.css"],
                 append: false,
-
             }),
             new ZipPlugin({
                 path: "../dist",
-                filename: util.format("appbase-%s", package_config.version)
-            })
-        ]
+                filename: util.format("appbase-%s", package_config.version),
+            }),
+        ],
     });
 };

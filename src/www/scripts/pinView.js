@@ -12,9 +12,9 @@ const confirmPinButton = document.getElementById("mx-confirm-pin");
 const forgotPinButton = document.getElementById("mx-forgot-pin");
 const userInput = document.querySelectorAll("#mx-pin-container input");
 
-Array.prototype.forEach.call(userInput, input => input.type = cordova.platformId == "android" ? "number" : "tel");
+Array.prototype.forEach.call(userInput, (input) => (input.type = cordova.platformId == "android" ? "number" : "tel"));
 
-export function verify () {
+export function verify() {
     return new Promise((resolve, reject) => {
         updateErrorText(__("Verify your PIN"));
 
@@ -32,7 +32,7 @@ export function verify () {
                 await Pin.verify(getEnteredPin());
                 closeView();
                 resolve();
-            } catch(err) {
+            } catch (err) {
                 let attemptsLeft = await Pin.getAttemptsLeft();
                 if (attemptsLeft === 0) {
                     forgetPinAction();
@@ -107,7 +107,7 @@ export function confirm(pinToConfirm, callback, error) {
         const userPin = getEnteredPin();
 
         if (userPin === pinToConfirm) {
-            Pin.set(userPin).then(function() {
+            Pin.set(userPin).then(function () {
                 removeSelf();
 
                 if (callback) callback();
@@ -121,13 +121,16 @@ export function confirm(pinToConfirm, callback, error) {
 }
 
 function getEnteredPin() {
-    return [].slice.call(userInput).map(function (element) {
-        return element.value;
-    }).join("");
+    return [].slice
+        .call(userInput)
+        .map(function (element) {
+            return element.value;
+        })
+        .join("");
 }
 
 function updateErrorText(message) {
-    Pin.getAttemptsLeft().then(function(attemptsLeft) {
+    Pin.getAttemptsLeft().then(function (attemptsLeft) {
         errorNode.textContent = message;
         if (attemptsLeft === 1) {
             errorNode.textContent += ". " + __("You have one more attempt");
@@ -146,11 +149,11 @@ function moveInputForward(e) {
         target.value = target.value[0];
         // We would like to have visual feedback of the typed number
         // rather than changing to star immediately
-        changeKeyboardToPassword = setTimeout(function() {
+        changeKeyboardToPassword = setTimeout(function () {
             hidePinNumber(target);
         }, 500);
         let next = target;
-        while (next = next.nextElementSibling) {
+        while ((next = next.nextElementSibling)) {
             if (next.tagName.toLowerCase() === "input") {
                 showPinNumber(next);
                 next.focus();
@@ -166,7 +169,7 @@ function moveInputForward(e) {
 
 function moveInputBackwards(target) {
     let prev = target;
-    while (prev = prev.previousElementSibling) {
+    while ((prev = prev.previousElementSibling)) {
         if (target.nextElementSibling === null && target.value !== "") {
             hidePinNumber(target);
             break;
@@ -205,7 +208,7 @@ function touchStartHandler(e) {
 }
 
 function cleanUserInput() {
-    [].slice.call(userInput).forEach(function(element) {
+    [].slice.call(userInput).forEach(function (element) {
         element.value = "";
     });
 }

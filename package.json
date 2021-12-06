@@ -3,7 +3,8 @@
   "version": "6.0.0",
   "description": "Mendix PhoneGap Build base package",
   "scripts": {
-    "appbase": "node ./node_modules/webpack/bin/webpack --config ./webpack.config.appbase.js"
+    "appbase": "node ./node_modules/webpack/bin/webpack --config ./webpack.config.appbase.js",
+    "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx}\""
   },
   "main": "src/www/scripts/entry.js",
   "directories": {
@@ -51,5 +52,8 @@
     "name": "Mendix",
     "email": "support@mendix.com",
     "url": "https://support.mendix.com"
+  },
+  "devDependencies": {
+    "prettier": "^2.5.1"
   }
 }

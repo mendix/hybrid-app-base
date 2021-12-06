@@ -3,18 +3,18 @@
 var namespacePromises = {};
 
 export default (function () {
-    var getStorage = function(namespace) {
+    var getStorage = function (namespace) {
         if (!namespacePromises[namespace]) {
             namespacePromises[namespace] = new Promise(function (resolve, reject) {
                 var storage = new cordova.plugins.SecureStorage(
                     function () {
                         resolve(storage);
                     },
-                    function(error) {
+                    function (error) {
                         if (error.message === "Device is not secure") {
                             var retry = function () {
                                 resolve(getStorage());
-                            }
+                            };
                             return navigator.notification.alert(
                                 "Please enable the screen lock on your device. This app cannot operate securely without it.",
                                 function () {
@@ -23,7 +23,7 @@ export default (function () {
                                 "Screen lock is disabled"
                             );
                         }
-            
+
                         reject(e);
                     },
                     namespace
@@ -34,7 +34,7 @@ export default (function () {
         return namespacePromises[namespace];
     };
 
-    var remove = function(namespace, key) {
+    var remove = function (namespace, key) {
         return getStorage(namespace).then(function (storage) {
             return new Promise(function (resolve, reject) {
                 storage.remove(resolve, reject, key);
@@ -42,7 +42,7 @@ export default (function () {
         });
     };
 
-    var set = function(namespace, key, value) {
+    var set = function (namespace, key, value) {
         return getStorage(namespace).then(function (storage) {
             return new Promise(function (resolve, reject) {
                 storage.set(resolve, reject, key, value);
@@ -50,7 +50,7 @@ export default (function () {
         });
     };
 
-    var get = function(namespace, key) {
+    var get = function (namespace, key) {
         return getStorage(namespace).then(function (storage) {
             return new Promise(function (resolve, reject) {
                 storage.get(resolve, reject, key);
@@ -61,8 +61,6 @@ export default (function () {
     return {
         set: set,
         get: get,
-        remove: remove
+        remove: remove,
     };
 })();
-
-

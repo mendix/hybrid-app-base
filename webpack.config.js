@@ -1,12 +1,12 @@
 const path = require("path");
 
-let {merge: webpack_merge} = require('webpack-merge');
+let { merge: webpack_merge } = require("webpack-merge");
 
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const ZipPlugin = require("zip-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
+const HtmlWebpackTagsPlugin = require("html-webpack-tags-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 
 const Mustache = require("mustache");
 
@@ -26,18 +26,18 @@ module.exports = function (env) {
     const build_extras_gradle_path = utils.getBaseOrCustomPath("config/build-extras.gradle");
     const before_build_script_path = utils.getBaseOrCustomPath("scripts/before_build.js");
 
-
     let config = webpack_merge(base_config(env), {
         plugins: [
             new CopyWebpackPlugin({
-                patterns: [ // Process and copy the config.xml file
+                patterns: [
+                    // Process and copy the config.xml file
                     {
                         context: path.dirname(config_template_path),
                         from: path.basename(config_template_path),
                         to: "config.xml",
                         transform: function (content) {
                             return Mustache.render(content.toString(), settings);
-                        }
+                        },
                     },
                     {
                         context: path.dirname(settings_template_path),
@@ -45,57 +45,70 @@ module.exports = function (env) {
                         to: path.normalize("www/settings.json"),
                         transform: function (content) {
                             return Mustache.render(content.toString(), settings);
-                        }
-                    }
-                ]
+                        },
+                    },
+                ],
             }),
-            new CopyWebpackPlugin({ // Resource files
+            new CopyWebpackPlugin({
+                // Resource files
                 patterns: [
                     ...utils.getBaseAndCustomPaths("src/resources").map(function (dir) {
                         return {
                             context: dir,
                             from: "**/*",
                             to: "res",
-                            noErrorOnMissing: true
-                        }
-                    })
-                ]
+                            noErrorOnMissing: true,
+                        };
+                    }),
+                ],
             }),
             new CopyWebpackPlugin({
                 patterns: [
                     {
                         context: path.dirname(styling_path),
-                        from: '**/*.css.mustache',
+                        from: "**/*.css.mustache",
                         to: path.normalize("www/css/[name]"),
                         transform: function (content) {
                             return Mustache.render(content.toString(), settings);
-                        }
-                    }
-                ]
+                        },
+                    },
+                ],
             }),
             new CopyWebpackPlugin({
                 patterns: [
                     {
                         context: path.dirname(styling_path),
-                        from: '**/*.css',
+                        from: "**/*.css",
                         to: path.normalize("www/css/[name].css"),
-                        noErrorOnMissing: true
+                        noErrorOnMissing: true,
                     },
-                ]
+                ],
             }),
-            new HtmlWebpackPlugin(Object.assign({ // Generate the index.html
-                filename: "www/index.html",
-                inject: "body",
-                template: index_template_path
-            }, settings)),
-            new HtmlWebpackTagsPlugin({ // Copy styling files
+            new HtmlWebpackPlugin(
+                Object.assign(
+                    {
+                        // Generate the index.html
+                        filename: "www/index.html",
+                        inject: "body",
+                        template: index_template_path,
+                    },
+                    settings
+                )
+            ),
+            new HtmlWebpackTagsPlugin({
+                // Copy styling files
                 assets: [
                     "www/css/index.css",
-                    {path: 'www/css', glob: '**/*.css', globPath: path.normalize('src/www/styles/'), noErrorOnMissing: true}
+                    {
+                        path: "www/css",
+                        glob: "**/*.css",
+                        globPath: path.normalize("src/www/styles/"),
+                        noErrorOnMissing: true,
+                    },
                 ],
-                append: false
-            })
-        ]
+                append: false,
+            }),
+        ],
     });
 
     if (settings.permissions.push) {
@@ -106,28 +119,28 @@ module.exports = function (env) {
                         {
                             context: path.dirname(build_extras_gradle_path),
                             from: path.basename(build_extras_gradle_path),
-                            to: path.join("config", path.basename(build_extras_gradle_path))
+                            to: path.join("config", path.basename(build_extras_gradle_path)),
                         },
                         {
                             context: path.dirname(before_build_script_path),
                             from: path.basename(before_build_script_path),
-                            to: path.join("scripts", path.basename(before_build_script_path))
+                            to: path.join("scripts", path.basename(before_build_script_path)),
                         },
                         {
                             context: path.dirname(google_services_json_path),
                             from: path.basename(google_services_json_path),
                             to: path.join("config", path.basename(google_services_json_path)),
-                            noErrorOnMissing: true
+                            noErrorOnMissing: true,
                         },
                         {
                             context: path.dirname(google_service_plist_path),
                             from: path.basename(google_service_plist_path),
                             to: path.join("config", path.basename(google_service_plist_path)),
-                            noErrorOnMissing: true
-                        }
-                    ]
-                })
-            ]
+                            noErrorOnMissing: true,
+                        },
+                    ],
+                }),
+            ],
         });
     }
 
@@ -135,9 +148,9 @@ module.exports = function (env) {
         plugins: [
             new ZipPlugin({
                 path: "../dist",
-                filename: utils.constructArchiveName(settings)
-            })
-        ]
+                filename: utils.constructArchiveName(settings),
+            }),
+        ],
     });
 
     if (!settings.options.debug) {
@@ -150,11 +163,11 @@ module.exports = function (env) {
                         parallel: 2,
                         terserOptions: {
                             ecma: 5,
-                            toplevel: true
-                        }
-                    })
-                ]
-            }
+                            toplevel: true,
+                        },
+                    }),
+                ],
+            },
         });
     }
 
