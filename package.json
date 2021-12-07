@@ -1,6 +1,6 @@
 {
   "name": "@mendix/mendix-hybrid-app-base",
-  "version": "6.0.0-alpha.2",
+  "version": "6.0.0-alpha.5",
   "description": "Mendix PhoneGap Build base package",
   "scripts": {
     "appbase": "node ./node_modules/webpack/bin/webpack --config ./webpack.config.appbase.js",
@@ -34,7 +34,7 @@
     "html-webpack-tags-plugin": "^3.0.1",
     "mustache": "^2.1.2",
     "mustache-loader": "^1.4.0",
-    "regenerator-runtime": "^0.13.7",
+    "regenerator-runtime": "^0.13.9",
     "sanitize-filename": "^1.6.1",
     "style-loader": "^0.13.2",
     "terser-webpack-plugin": "^5.1.1",
