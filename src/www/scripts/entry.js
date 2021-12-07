@@ -1,5 +1,3 @@
-import "core-js/stable";
-import "regenerator-runtime/runtime";
 import MxApp from "./app";
 import Settings from "./settings";
 
@@ -18,4 +16,4 @@ document.addEventListener("deviceready", function () {
     });
 });
 
-module.exports = MxApp;
+export default MxApp;
