@@ -1,6 +1,6 @@
 "use strict";
-// import "core-js/stable";
-// import "regenerator-runtime/runtime";
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 import Emitter from "./emitter";
 import TokenStore from "./Token-store";
 import Pin from "./pin";
