@@ -54,7 +54,6 @@ module.exports = function () {
                                     },
                                 ],
                             ],
-                            plugins: ["@babel/transform-regenerator"],
                             cacheDirectory: true,
                         },
                     },

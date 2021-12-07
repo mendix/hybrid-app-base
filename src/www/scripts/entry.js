@@ -1,5 +1,7 @@
-const MxApp = require("./app");
-const Settings = require("./settings");
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+import MxApp from "./app";
+import Settings from "./settings";
 
 // Make sure to include the scheme (e.g. http://) in the URL.
 document.addEventListener("deviceready", function () {
