@@ -28,7 +28,7 @@
     "clean-webpack-plugin": "^0.1.16",
     "copy-webpack-plugin": "^8.1.1",
     "core-js": "^3.10.1",
-    "css-loader": "^5.2.1",
+    "css-loader": "^5.2.7",
     "html-webpack-include-assets-plugin": "^2.0.0",
     "html-webpack-plugin": "^5.3.1",
     "html-webpack-tags-plugin": "^3.0.1",
