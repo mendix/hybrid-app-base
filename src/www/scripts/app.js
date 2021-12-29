@@ -1,25 +1,19 @@
 "use strict";
-import "babel-polyfill";
 import Emitter from "./emitter";
 import TokenStore from "./Token-store";
-
 import Pin from "./pin";
 import * as PinView from "./pinView";
 import SecureStore from "./secure-store";
 import FileStore from "./file-store";
 import LocalStore from "./local-store";
 
-module.exports = (function() {
+export default (function () {
     var defaultConfig = {
             files: {
                 js: ["mxclientsystem/mxui/mxui.js"],
-                css: [
-                    "lib/bootstrap/css/bootstrap.min.css",
-                    "mxclientsystem/mxui/ui/mxui.css",
-                    "css/theme.css"
-                ]
+                css: ["lib/bootstrap/css/bootstrap.min.css", "mxclientsystem/mxui/ui/mxui.css", "css/theme.css"],
             },
-            cachebust: +new Date()
+            cachebust: +new Date(),
         },
         appUrl = "";
 
@@ -29,20 +23,20 @@ module.exports = (function() {
 
     var clickType = typeof document.ontouchstart === "undefined" ? "click" : "touchstart";
 
-    var UserVisibleError = function(message) {
+    var UserVisibleError = function (message) {
         this.message = message;
     };
 
     UserVisibleError.prototype = new Error();
 
-    var request = function(url, params) {
+    var request = function (url, params) {
         var xhr = new XMLHttpRequest(),
             header;
 
         xhr.open(params.method, url);
 
         if (params.onLoad) {
-            xhr.onreadystatechange = function() {
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState !== 4) {
                     return;
                 }
@@ -65,9 +59,9 @@ module.exports = (function() {
         xhr.send(params.data);
     };
 
-    var showError = function(message, callback) {
+    var showError = function (message, callback) {
         document.getElementById("mxalert_message").textContent = message;
-        document.getElementById("mxalert_button").addEventListener("touchstart", function() {
+        document.getElementById("mxalert_button").addEventListener("touchstart", function () {
             if (typeof callback === "function") {
                 document.getElementById("mxalert").style.display = "none";
                 callback();
@@ -81,15 +75,15 @@ module.exports = (function() {
     };
 
     var messageElement;
-    var setProgressMessage = function(message) {
+    var setProgressMessage = function (message) {
         messageElement = messageElement || document.querySelector("#mx-loader-container .mx-message");
         if (messageElement.textContent != message) {
             messageElement.textContent = message;
         }
     };
 
-    var withProgressMessage = function(fn, message) {
-        return function() {
+    var withProgressMessage = function (fn, message) {
+        return function () {
             setProgressMessage(message);
 
             let appNode = document.getElementById("mx-app");
@@ -102,8 +96,8 @@ module.exports = (function() {
         };
     };
 
-    var pollUntil = function(interval, tries, predicate, resolve, reject) {
-        var pollInterval = setInterval(function() {
+    var pollUntil = function (interval, tries, predicate, resolve, reject) {
+        var pollInterval = setInterval(function () {
             if (tries === 0) {
                 clearInterval(pollInterval);
                 reject();
@@ -116,41 +110,44 @@ module.exports = (function() {
         }, interval);
     };
 
-    var createTokenStore = function(requirePin) {
+    var createTokenStore = function (requirePin) {
         var tokenStore = new TokenStore(requirePin ? SecureStore : FileStore);
 
         return {
-            set: function(token, callback) {
+            set: function (token, callback) {
                 console.log("Setting TOKEN " + token);
                 tokenStore.set(token).then(callback, callback);
             },
-            get: function(callback) {
+            get: function (callback) {
                 console.log("Getting TOKEN:");
-                tokenStore.get().then(function(token) {
-                    console.log("Got TOKEN " + token);
-                    if (callback) callback(token);
-                }, function(e) {
-                    // Fallback
-                    const localTokenStore = new TokenStore(LocalStore);
-                    localTokenStore.get().then(function(token) {
-                        if (token) {
-                            tokenStore.set(token).then(callback, callback);
-                            if (callback) callback(token);
-                        } else {
-                            if (callback) callback(undefined);
-                        }
-                    });
-                });
+                tokenStore.get().then(
+                    function (token) {
+                        console.log("Got TOKEN " + token);
+                        if (callback) callback(token);
+                    },
+                    function (e) {
+                        // Fallback
+                        const localTokenStore = new TokenStore(LocalStore);
+                        localTokenStore.get().then(function (token) {
+                            if (token) {
+                                tokenStore.set(token).then(callback, callback);
+                                if (callback) callback(token);
+                            } else {
+                                if (callback) callback(undefined);
+                            }
+                        });
+                    }
+                );
             },
-            remove: function(callback) {
+            remove: function (callback) {
                 console.log("Removing TOKEN");
                 tokenStore.remove().then(callback, callback);
-            }
-        }
+            },
+        };
     };
 
-    var _startup = function(config, url, appUrl, enableOffline, requirePin) {
-        return new Promise(async function(resolve, reject) {
+    var _startup = function (config, url, appUrl, enableOffline, requirePin) {
+        return new Promise(async function (resolve, reject) {
             window.dojoConfig = {
                 appbase: url,
                 remotebase: appUrl,
@@ -158,62 +155,64 @@ module.exports = (function() {
                 async: true,
                 cacheBust: config.cachebust,
                 server: {
-                    timeout: enableOffline ? 30000 : 5000
+                    timeout: enableOffline ? 30000 : 5000,
                 },
                 data: {
                     offlineBackend: {
-                        getStorageDirFn: function(callback, error) {
-                            window.resolveLocalFileSystemURL(documentDirectory, function(dir) {
-                                if (callback) callback(dir);
-                            }, error);
-                        },
-                        getDocumentUrlFn: function(fileName, changedDate, isThumb) {
-                            var dir = isThumb ? "thumbnails" : "documents";
-                            return documentDirectory + "files/" + dir + "/" + fileName + "?" + (+new Date());
-                        },
-                        downloadFileFn: function(src, dst, callback, error) {
-                            var fileTransfer = new FileTransfer();
-                            fileTransfer.download(
-                                encodeURI(appUrl + src),
-                                documentDirectory + "files/" + dst,
-                                callback,
+                        getStorageDirFn: function (callback, error) {
+                            window.resolveLocalFileSystemURL(
+                                documentDirectory,
+                                function (dir) {
+                                    if (callback) callback(dir);
+                                },
                                 error
                             );
-                        }
-                    }
+                        },
+                        getDocumentUrlFn: function (fileName, changedDate, isThumb) {
+                            var dir = isThumb ? "thumbnails" : "documents";
+                            return documentDirectory + "files/" + dir + "/" + fileName + "?" + +new Date();
+                        },
+                        downloadFileFn: function (src, dst, callback, error) {
+                            var fileTransfer = new FileTransfer();
+                            fileTransfer.download(appUrl + src, documentDirectory + "files/" + dst, callback, error);
+                        },
+                    },
                 },
                 store: {
-                    createStoreFn: function() {
+                    createStoreFn: function () {
                         let db = window.sqlitePlugin.openDatabase({
                             name: "MendixDatabase.db",
-                            location: 2
+                            location: 2,
                         });
 
-                        document.addEventListener("pause", function() {
-                            db.close(function() {
-                                console.log("DB closed!");
-                            }, function(error) {
-                                console.log("Error closing DB: " + error.message);
-                            });
+                        document.addEventListener("pause", function () {
+                            db.close(
+                                function () {
+                                    console.log("DB closed!");
+                                },
+                                function (error) {
+                                    console.log("Error closing DB: " + error.message);
+                                }
+                            );
                         });
 
-                        document.addEventListener("resume", function() {
+                        document.addEventListener("resume", function () {
                             db = window.sqlitePlugin.openDatabase({
                                 name: "MendixDatabase.db",
-                                location: 2
+                                location: 2,
                             });
                             console.log("DB opened!");
                         });
 
                         return db;
-                    }
+                    },
                 },
                 session: {
                     shouldGenerateToken: true,
-                    tokenStore: createTokenStore(requirePin)
+                    tokenStore: createTokenStore(requirePin),
                 },
                 ui: {
-                    customLoginFn: function(messageCode) {
+                    customLoginFn: function (messageCode) {
                         var loginNode = document.getElementById("mx-login-container");
                         var loginButton = document.getElementById("mx-execute-login");
                         var errorNode = document.getElementById("mx-login-error");
@@ -230,16 +229,21 @@ module.exports = (function() {
                             var loginUsername = document.getElementById("mx-username");
                             var loginPassword = document.getElementById("mx-password");
 
-                            mx.login(loginUsername.value, loginPassword.value, function() {
-                                loginNode.style.display = "";
-                                loginButton.removeEventListener(clickType, loginAction);
-                            }, function(e) {
-                                errorNode.textContent = __("We couldn't log you in");
-                            });
+                            mx.login(
+                                loginUsername.value,
+                                loginPassword.value,
+                                function () {
+                                    loginNode.style.display = "";
+                                    loginButton.removeEventListener(clickType, loginAction);
+                                },
+                                function (e) {
+                                    errorNode.textContent = __("We couldn't log you in");
+                                }
+                            );
                         }
-                    }
+                    },
                 },
-                afterLoginFn: function() {
+                afterLoginFn: function () {
                     /*
                      * If defined, this function is invoked after successful login,
                      * instead of `startup` call. As below, the example can be a PIN
@@ -251,9 +255,9 @@ module.exports = (function() {
 
                         replaceEventHandler("backbutton", handleBackButtonForAppWithPin, handleBackButton);
 
-                        var configureAndConfirm = function(message) {
-                            PinView.configure(message, function(enteredPin) {
-                                PinView.confirm(enteredPin, startClient, function() {
+                        var configureAndConfirm = function (message) {
+                            PinView.configure(message, function (enteredPin) {
+                                PinView.confirm(enteredPin, startClient, function () {
                                     configureAndConfirm(__("PIN did not match. Try again!"));
                                 });
                             });
@@ -274,7 +278,7 @@ module.exports = (function() {
                         window.mx.isLoaded() ? window.mx.reload() : window.mx.startup();
                     }
                 },
-                afterNavigationFn: function() {
+                afterNavigationFn: function () {
                     console.info("Running afterNavigation function");
 
                     /*
@@ -283,20 +287,20 @@ module.exports = (function() {
                      * removal of the loading nodes.
                      */
                     removeSelf();
-                }
+                },
             };
 
             window.dojoConfig.offline = enableOffline;
 
             if (cordova.platformId === "android") {
-                window.dojoConfig.ui.openUrlFn = function(url, fileName, windowName) {
+                window.dojoConfig.ui.openUrlFn = function (url, fileName, windowName) {
                     download(url, cordova.file.externalCacheDirectory + fileName, false, {}, null)
-                        .then(function(fe) {
-                            fe.file(function(file) {
+                        .then(function (fe) {
+                            fe.file(function (file) {
                                 cordova.plugins.fileOpener2.open(fe.toInternalURL(), file.type);
                             });
                         })
-                        .catch(function(e) {
+                        .catch(function (e) {
                             window.mx.ui.exception(__("Could not download file"));
                         });
                 };
@@ -308,27 +312,32 @@ module.exports = (function() {
             if (window.cordova.wkwebview) {
                 var sequence = 0;
                 window.dojoConfig.data.onlineBackend = {
-                    getImgUriFn: function(url, callback, error) {
+                    getImgUriFn: function (url, callback, error) {
                         var fileTransfer = new FileTransfer();
-                        var tmpFile = cordova.file.tempDirectory + "img" + (+new Date()) + "-" + sequence++;
+                        var tmpFile = cordova.file.tempDirectory + "img" + +new Date() + "-" + sequence++;
 
                         // Workaround for issue introduced in 7.0.0, where url was of the wrong type (object instead of string)
-                        url = encodeURI((typeof url === 'string') ? url : url["0"]);
+                        url = typeof url === "string" ? url : url["0"];
 
-                        fileTransfer.download(url, tmpFile, function(fileEntry) {
-                            fileEntry.file(function(file) {
-                                var reader = new FileReader();
-                                reader.onload = function(evt) {
-                                    var obj = evt.target.result;
-                                    callback(obj);
-                                };
-                                reader.onerror = error;
+                        fileTransfer.download(
+                            url,
+                            tmpFile,
+                            function (fileEntry) {
+                                fileEntry.file(function (file) {
+                                    var reader = new FileReader();
+                                    reader.onload = function (evt) {
+                                        var obj = evt.target.result;
+                                        callback(obj);
+                                    };
+                                    reader.onerror = error;
 
-                                reader.readAsDataURL(file);
-                            }, error);
-                        }, error);
-                    }
-                }
+                                    reader.readAsDataURL(file);
+                                }, error);
+                            },
+                            error
+                        );
+                    },
+                };
             }
 
             await emitter.emit("onConfigReady", window.dojoConfig);
@@ -337,47 +346,53 @@ module.exports = (function() {
             // own styles and scripts until mx exists.  We need to hold on to our own styles as long as we
             // show a progress message.
             addScripts(url, config.cachebust, config.files.js);
-            pollUntil(200, 20, function() {
-                return typeof mx !== "undefined";
-            }, async function() {
-                if (!isAfterNavigationFnSupported()) {
-                    removeSelf();
+            pollUntil(
+                200,
+                20,
+                function () {
+                    return typeof mx !== "undefined";
+                },
+                async function () {
+                    if (!isAfterNavigationFnSupported()) {
+                        removeSelf();
+                    }
+                    addStylesheets(url, config.cachebust, config.files.css);
+
+                    if (requirePin) {
+                        replaceEventHandler("backbutton", handleBackButton, handleBackButtonForAppWithPin);
+                    } else {
+                        replaceEventHandler("backbutton", handleBackButton, handleBackButtonForApp);
+                    }
+
+                    await emitter.emit("onClientReady", window.mx);
+
+                    resolve();
+                },
+                function () {
+                    reject(new Error(__("App startup failed")));
                 }
-                addStylesheets(url, config.cachebust, config.files.css);
-
-                if (requirePin) {
-                    replaceEventHandler("backbutton", handleBackButton, handleBackButtonForAppWithPin);
-                } else {
-                    replaceEventHandler("backbutton", handleBackButton, handleBackButtonForApp);
-                }
-
-                await emitter.emit("onClientReady", window.mx);
-
-                resolve();
-            }, function() {
-                reject(new Error(__("App startup failed")));
-            });
+            );
         });
     };
 
     var startupMessage = window.sessionStorage.getItem("refreshData") ? __("Synchronizing...") : __("Starting app...");
     var startup = withProgressMessage(_startup, startupMessage);
 
-    var isAbsolute = function(url) {
+    var isAbsolute = function (url) {
         // http://stackoverflow.com/a/19709846
         return /^(?:[a-z]+:)?\/\//i.test(url);
     };
 
-    var isAfterNavigationFnSupported = function() {
+    var isAfterNavigationFnSupported = function () {
         // The afterNavigationFn is supported on mx.version 6.9 and above
         // Versions below 6.8 do not support mx.version api
         return mx.version && !mx.version.startsWith("6.8");
     };
 
-    var addScripts = function(url, cachebust, scripts) {
+    var addScripts = function (url, cachebust, scripts) {
         var head = document.getElementsByTagName("head")[0];
 
-        scripts.forEach(function(href) {
+        scripts.forEach(function (href) {
             var script = document.createElement("script");
 
             if (isAbsolute(href)) {
@@ -390,10 +405,10 @@ module.exports = (function() {
         });
     };
 
-    var addStylesheets = function(url, cachebust, stylesheets) {
+    var addStylesheets = function (url, cachebust, stylesheets) {
         var head = document.getElementsByTagName("head")[0];
 
-        stylesheets.forEach(function(href) {
+        stylesheets.forEach(function (href) {
             var link = document.createElement("link");
             link.rel = "stylesheet";
 
@@ -407,30 +422,30 @@ module.exports = (function() {
         });
     };
 
-    var removeSelf = function() {
+    var removeSelf = function () {
         var appNode = document.getElementById("mx-app");
         if (appNode) appNode.style.display = "none";
     };
 
-    var hideLoader = function() {
+    var hideLoader = function () {
         var loaderNode = document.getElementById("mx-loader-container");
         loaderNode.style.display = "none";
     };
 
-    var getRemoteConfig = function() {
+    var getRemoteConfig = function () {
         var attempts = 20,
-            configUrl = appUrl + "components.json?" + (+new Date());
+            configUrl = appUrl + "components.json?" + +new Date();
 
         function fetchConfig(callback) {
             request(configUrl, {
                 method: "get",
                 timeout: 5000,
-                onLoad: callback
+                onLoad: callback,
             });
         }
 
-        return new Promise(function(resolve, reject) {
-            var cb = function(status, result) {
+        return new Promise(function (resolve, reject) {
+            var cb = function (status, result) {
                 if (status === 200) {
                     resolve(JSON.parse(result));
                 } else if (status === 404) {
@@ -452,11 +467,11 @@ module.exports = (function() {
         });
     };
 
-    var getLocalConfig = function() {
-        return new Promise(function(resolve, reject) {
-            request(resourcesDirectory + "components.json?" + (+new Date()), {
+    var getLocalConfig = function () {
+        return new Promise(function (resolve, reject) {
+            request(resourcesDirectory + "components.json?" + +new Date(), {
                 method: "GET",
-                onLoad: function(status, result) {
+                onLoad: function (status, result) {
                     try {
                         if (result) {
                             resolve(JSON.parse(result));
@@ -466,13 +481,13 @@ module.exports = (function() {
                     } catch (e) {
                         reject(e);
                     }
-                }
+                },
             });
         });
     };
 
-    var createOnProgressHandler = function(message) {
-        return function(progressEvent) {
+    var createOnProgressHandler = function (message) {
+        return function (progressEvent) {
             var quirkyProgress = progressEvent.lengthComputable === undefined;
 
             if (progressEvent.lengthComputable || quirkyProgress) {
@@ -482,93 +497,119 @@ module.exports = (function() {
         };
     };
 
-    var download = function(sourceUri, destinationUri, trustAllHosts, options, onprogress) {
-        return new Promise(function(resolve, reject) {
+    var download = function (sourceUri, destinationUri, trustAllHosts, options, onprogress) {
+        return new Promise(function (resolve, reject) {
             var fileTransfer = new FileTransfer();
             fileTransfer.onprogress = onprogress;
             fileTransfer.download(encodeURI(sourceUri), destinationUri, resolve, reject, trustAllHosts, options);
         });
     };
 
-    var _downloadAppPackage = function(sourceUri, destinationUri) {
-        return download(sourceUri, destinationUri, false, {
-            headers: {
-                "Accept-Encoding": ""
-            }
-        }, createOnProgressHandler(__("Updating app")));
+    var _downloadAppPackage = function (sourceUri, destinationUri) {
+        return download(
+            sourceUri,
+            destinationUri,
+            false,
+            {
+                headers: {
+                    "Accept-Encoding": "",
+                },
+            },
+            createOnProgressHandler(__("Updating app"))
+        );
     };
 
     var downloadAppPackage = withProgressMessage(_downloadAppPackage, __("Updating app..."));
 
-    var removeFile = function(fileUri) {
-        return new Promise(function(resolve, reject) {
-            window.resolveLocalFileSystemURI(fileUri, function(fileEntry) {
-                fileEntry.remove(resolve, reject);
-            }, reject);
+    var removeFile = function (fileUri) {
+        return new Promise(function (resolve, reject) {
+            window.resolveLocalFileSystemURI(
+                fileUri,
+                function (fileEntry) {
+                    fileEntry.remove(resolve, reject);
+                },
+                reject
+            );
         });
     };
 
-    var _removeRecursively = function(directoryUri) {
-        return new Promise(function(resolve, reject) {
-            window.resolveLocalFileSystemURI(directoryUri, function(directoryEntry) {
-                directoryEntry.removeRecursively(resolve, reject);
-            }, function(e) {
-                if (e.code !== FileError.NOT_FOUND_ERR) {
-                    reject(e);
-                } else {
-                    resolve();
+    var _removeRecursively = function (directoryUri) {
+        return new Promise(function (resolve, reject) {
+            window.resolveLocalFileSystemURI(
+                directoryUri,
+                function (directoryEntry) {
+                    directoryEntry.removeRecursively(resolve, reject);
+                },
+                function (e) {
+                    if (e.code !== FileError.NOT_FOUND_ERR) {
+                        reject(e);
+                    } else {
+                        resolve();
+                    }
                 }
-            });
+            );
         });
     };
 
     var removeRecursively = withProgressMessage(_removeRecursively, __("Optimizing for your device..."));
 
-    var unzip = function(sourceUri, destinationUri, progressHandler) {
-        return new Promise(function(resolve, reject) {
-            zip.unzip(sourceUri, destinationUri, function(result) {
-                if (result === 0) {
-                    resolve();
-                } else {
-                    reject();
-                }
-            }, progressHandler);
+    var unzip = function (sourceUri, destinationUri, progressHandler) {
+        return new Promise(function (resolve, reject) {
+            zip.unzip(
+                sourceUri,
+                destinationUri,
+                function (result) {
+                    if (result === 0) {
+                        resolve();
+                    } else {
+                        reject();
+                    }
+                },
+                progressHandler
+            );
         });
     };
 
-    var synchronizePackage = function(sourceUri, destinationUri) {
+    var synchronizePackage = function (sourceUri, destinationUri) {
         function safeUnzip() {
-            return unzip(destinationUri, resourcesDirectory, createOnProgressHandler(__("Optimizing for your device")))
-                .catch(function(e) {
-                    removeRecursively(resourcesDirectory);
-                    throw e;
-                });
+            return unzip(
+                destinationUri,
+                resourcesDirectory,
+                createOnProgressHandler(__("Optimizing for your device"))
+            ).catch(function (e) {
+                removeRecursively(resourcesDirectory);
+                throw e;
+            });
         }
 
         function unpackageWithCleanup() {
             return removeRecursively(resourcesDirectory)
                 .then(safeUnzip)
-                .then(function() {
-                    removeFile(destinationUri);
-                }, function(e) {
-                    removeFile(destinationUri);
-                    throw e;
-                });
+                .then(
+                    function () {
+                        removeFile(destinationUri);
+                    },
+                    function (e) {
+                        removeFile(destinationUri);
+                        throw e;
+                    }
+                );
         }
 
         function handleFailedDownload(e) {
-            return getLocalConfig().catch(function(e) {
+            return getLocalConfig().catch(function (e) {
                 throw new UserVisibleError(
-                    __("Could not synchronize with server. Make sure your app has an offline profile enabled when running in offline mode.")
+                    __(
+                        "Could not synchronize with server. Make sure your app has an offline profile enabled when running in offline mode."
+                    )
                 );
             });
         }
 
-        return downloadAppPackage(sourceUri, destinationUri)
-            .then(unpackageWithCleanup, handleFailedDownload);
+        return downloadAppPackage(sourceUri, destinationUri).then(unpackageWithCleanup, handleFailedDownload);
     };
 
-    var synchronizeResources = async function(url, enableOffline, shouldDownloadFn, updateAsync) {
+    var synchronizeResources = async function (url, enableOffline, shouldDownloadFn, updateAsync) {
         const sourceUri = encodeURI(url + "resources.zip");
         const destinationUri = cacheDirectory + "resources.zip";
 
@@ -579,7 +620,7 @@ module.exports = (function() {
             try {
                 localResult = await getLocalConfig();
             } catch (e) {
-                console.log('Unable to retrieve local components.json');
+                console.log("Unable to retrieve local components.json");
 
                 let remoteResult = await getRemoteConfig();
 
@@ -603,9 +644,11 @@ module.exports = (function() {
                         if (onAppUpdateAvailableFn) {
                             onAppUpdateAvailableFn(updateConfig);
                         } else {
-                            navigator.notification.confirm(__("An update is ready. Do you want to download it? (this may take a few moments)"),
+                            navigator.notification.confirm(
+                                __("An update is ready. Do you want to download it? (this may take a few moments)"),
                                 (buttonIndex) => buttonIndex === 1 && updateConfig(),
-                                __("Update ready"), [__("Yes"), __("No, update later")]
+                                __("Update ready"),
+                                [__("Yes"), __("No, update later")]
                             );
                         }
                     } else {
@@ -614,7 +657,7 @@ module.exports = (function() {
                 }
             } catch (e) {
                 // We couldn't determine whether to upgrade. We'll just continue with local files.
-                console.log('Unable to retrieve remote components.json');
+                console.log("Unable to retrieve remote components.json");
             }
 
             return [localResult, resourcesDirectory];
@@ -639,11 +682,11 @@ module.exports = (function() {
         }
     };
 
-    var normalizeTrailingSlash = function(path) {
+    var normalizeTrailingSlash = function (path) {
         return path.replace(/\/$/, "") + "/";
     };
 
-    var setupDirectoryLocations = function() {
+    var setupDirectoryLocations = function () {
         if (cordova.wkwebview) {
             cacheDirectory = normalizeTrailingSlash(cordova.wkwebview.storageDir);
             documentDirectory = normalizeTrailingSlash(cordova.wkwebview.storageDir);
@@ -657,33 +700,33 @@ module.exports = (function() {
         resourcesDirectory = cacheDirectory + "resources/";
     };
 
-    var makeVisibleError = function(e) {
-        return (e instanceof UserVisibleError) ? e.message : __("Cannot initialize app.");
+    var makeVisibleError = function (e) {
+        return e instanceof UserVisibleError ? e.message : __("Cannot initialize app.");
     };
 
-    var handleBackButton = function(e) {
+    var handleBackButton = function (e) {
         navigator.app.exitApp();
     };
 
-    var handleBackButtonForApp = function(e) {
+    var handleBackButtonForApp = function (e) {
         if (!window.mx.ui.canMoveBack) {
             // For legacy Mendix versions
             window.history.back();
         } else if (window.mx.ui.canMoveBack()) {
             window.history.back();
         } else if (window.mx.session.destroySession) {
-            window.mx.session.destroySession(function() {
+            window.mx.session.destroySession(function () {
                 navigator.app.exitApp();
             });
         } else {
             // For legacy Mendix versions
-            window.mx.session.logout(function() {
+            window.mx.session.logout(function () {
                 navigator.app.exitApp();
             });
         }
     };
 
-    var handleBackButtonForAppWithPin = function(e) {
+    var handleBackButtonForAppWithPin = function (e) {
         if (!window.mx.ui.canMoveBack) {
             // For legacy Mendix versions
             window.history.back();
@@ -694,35 +737,35 @@ module.exports = (function() {
         }
     };
 
-    var replaceEventHandler = function(eventType, oldHandler, newHandler) {
+    var replaceEventHandler = function (eventType, oldHandler, newHandler) {
         if (oldHandler) document.removeEventListener(eventType, oldHandler);
         if (newHandler) document.addEventListener(eventType, newHandler);
     };
 
-    var replaceWindowOpenFn = function() {
+    var replaceWindowOpenFn = function () {
         // The client calls mail, call en text links with the window name set
         // to `_self`. This causes a new browser to be opened with the error
         // `UNSUPPORTED_URL_SCHEME`. To circumvent this we are overriding the window.open
         // so the window is set to `_system` which properly handles these schemes.
-        window.open = function(strUrl, strWindowName, strWindowFeatures, callbacks) {
+        window.open = function (strUrl, strWindowName, strWindowFeatures, callbacks) {
             if (/^(mailto:|sms:|tel:)/.test(strUrl)) {
-                return cordova.InAppBrowser.open(strUrl, "_system", strWindowFeatures, callbacks)
+                return cordova.InAppBrowser.open(strUrl, "_system", strWindowFeatures, callbacks);
             } else {
                 return cordova.InAppBrowser.open(strUrl, strWindowName, strWindowFeatures, callbacks);
             }
         };
     };
 
-    var credentialsProvided = function(username, password) {
+    var credentialsProvided = function (username, password) {
         return (
-            typeof username !== 'undefined' &&
+            typeof username !== "undefined" &&
             username.length > 0 &&
-            typeof password !== 'undefined' &&
+            typeof password !== "undefined" &&
             password.length > 0
         );
     };
 
-    var initialize = async function(url, enableOffline, requirePin, username, password, updateAsync) {
+    var initialize = async function (url, enableOffline, requirePin, username, password, updateAsync) {
         enableOffline = !!enableOffline;
 
         // Make sure the url always ends with a /
@@ -740,26 +783,28 @@ module.exports = (function() {
         const localTokenStore = new TokenStore(LocalStore);
         const secureTokenStore = requirePin ? new TokenStore(SecureStore) : undefined;
 
-        var shouldDownloadFn = function(config) {
+        var shouldDownloadFn = function (config) {
             return config.downloadResources || enableOffline;
         };
 
-        const reflect = function(promise) {
-            return promise.then(function(v) {
+        const reflect = function (promise) {
+            return promise.then(
+                function (v) {
                     return {
                         v: v,
-                        status: "resolved"
-                    }
+                        status: "resolved",
+                    };
                 },
-                function(e) {
+                function (e) {
                     return {
                         e: e,
-                        status: "rejected"
-                    }
-                });
+                        status: "rejected",
+                    };
+                }
+            );
         };
 
-        const cleanUpRemains = async function() {
+        const cleanUpRemains = async function () {
             try {
                 console.info("Will remove token in fileStore");
                 await reflect(fileTokenStore.remove());
@@ -769,7 +814,7 @@ module.exports = (function() {
                 await reflect(secureTokenStore.remove());
                 console.info("Will remove pin");
                 await reflect(Pin.remove());
-                await new Promise(function(resolve) {
+                await new Promise(function (resolve) {
                     console.info("Will remove cookies");
                     window.cookieEmperor.clearAll(resolve, () => {
                         console.info("Failed to clear cookies");
@@ -786,26 +831,34 @@ module.exports = (function() {
                     });
                 }
             } catch (e) {
-                console.info("Could not clean remaining session data; maybe they were already removed: ", e ? e : "no details");
+                console.info(
+                    "Could not clean remaining session data; maybe they were already removed: ",
+                    e ? e : "no details"
+                );
             }
         };
 
-        const syncAndStartup = async function() {
-            const [config, resourcesUrl] = await synchronizeResources(appUrl, enableOffline, shouldDownloadFn, updateAsync);
+        const syncAndStartup = async function () {
+            const [config, resourcesUrl] = await synchronizeResources(
+                appUrl,
+                enableOffline,
+                shouldDownloadFn,
+                updateAsync
+            );
             await startup(config, resourcesUrl, appUrl, enableOffline, requirePin);
         };
 
-        const logout = function() {
+        const logout = function () {
             console.info("Attempting to log out properly.");
 
             return new Promise((resolve) => {
-                if (typeof window.mx !== 'undefined' && typeof window.mx.session !== 'undefined') {
-                    if (typeof window.mx.session.destroySession !== 'undefined') {
+                if (typeof window.mx !== "undefined" && typeof window.mx.session !== "undefined") {
+                    if (typeof window.mx.session.destroySession !== "undefined") {
                         console.info("Calling mx.session.destroySession");
 
                         window.mx.session.destroySession(resolve);
                     }
-                    if (typeof window.mx.session.logout !== 'undefined') {
+                    if (typeof window.mx.session.logout !== "undefined") {
                         console.info("Calling mx.session.logout");
 
                         // For legacy Mendix versions
@@ -818,8 +871,8 @@ module.exports = (function() {
             });
         };
 
-        const handleError = function(e) {
-            return new Promise(function(resolve) {
+        const handleError = function (e) {
+            return new Promise(function (resolve) {
                 console.error(e);
                 showError(makeVisibleError(e), resolve);
             });
@@ -875,22 +928,24 @@ module.exports = (function() {
         }
     };
 
-    const _fileExists = function(path) {
+    const _fileExists = function (path) {
         return new Promise((resolve, reject) => window.resolveLocalFileSystemURL(path, resolve, reject));
     };
 
-    const unpackLocalResources = async function() {
+    const unpackLocalResources = async function () {
         const sourceUri = documentDirectory + "../resources.zip";
         try {
-            if (cordova.platformId === "ios" && await _fileExists(sourceUri)) {
-                await unzip(sourceUri, resourcesDirectory, () => {}).catch(e => _removeRecursively(resourcesDirectory));
+            if (cordova.platformId === "ios" && (await _fileExists(sourceUri))) {
+                await unzip(sourceUri, resourcesDirectory, () => {}).catch((e) =>
+                    _removeRecursively(resourcesDirectory)
+                );
                 await removeFile(sourceUri);
             }
         } catch (e) {}
     };
 
-    const createSessionWithCredentials = function(url, username, password) {
-        var loginUrl = url + 'xas/';
+    const createSessionWithCredentials = function (url, username, password) {
+        var loginUrl = url + "xas/";
         var attempts = 20;
 
         if (!credentialsProvided(username, password)) {
@@ -903,20 +958,20 @@ module.exports = (function() {
                 onLoad: callback,
                 method: "post",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
                 data: JSON.stringify({
                     action: "login",
                     params: {
                         username: username,
-                        password: password
-                    }
-                })
+                        password: password,
+                    },
+                }),
             });
         }
 
-        return new Promise(function(resolve, reject) {
-            var cb = function(status, result) {
+        return new Promise(function (resolve, reject) {
+            var cb = function (status, result) {
                 if (status === 200) {
                     resolve();
                 } else if (status === 503) {
@@ -943,6 +998,6 @@ module.exports = (function() {
         onBeforeSynchonization: emitter.on.bind(emitter, "onBeforeSynchonization"),
         onConfigReady: emitter.on.bind(emitter, "onConfigReady"),
         onClientReady: emitter.on.bind(emitter, "onClientReady"),
-        onAppUpdateAvailable: (fn) => onAppUpdateAvailableFn = fn
-    }
+        onAppUpdateAvailable: (fn) => (onAppUpdateAvailableFn = fn),
+    };
 })();
