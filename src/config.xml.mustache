@@ -2,7 +2,7 @@
 <widget xmlns = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "{{identifier}}"
-        version   = "{{version}}" 
+        version   = "{{version}}"
         xmlns:android="http://schemas.android.com/apk/res/android">
 
     <name>{{name}}</name>
@@ -152,6 +152,9 @@
 
             {{#permissions.geoLocation}}
                 <edit-config target="NSLocationWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
+                    <string>This app needs to access your location</string>
+                </edit-config>
+                <edit-config target="NSLocationAlwaysUsageDescription" file="*-Info.plist" mode="merge">
                     <string>This app needs to access your location</string>
                 </edit-config>
             {{/permissions.geoLocation}}
