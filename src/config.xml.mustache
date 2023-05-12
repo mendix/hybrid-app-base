@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<widget xmlns = "http://www.w3.org/ns/widgets"
-        xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "{{identifier}}"
-        version   = "{{version}}"
-        xmlns:android="http://schemas.android.com/apk/res/android">
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:cdv="http://cordova.apache.org/ns/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="{{identifier}}"
+        version="{{version}}">
 
     <name>{{name}}</name>
-
     <description>{{description}}</description>
+    <content src="index.html" />
 
     <engine name="android" spec="11.0.0" />
     <engine name="ios" spec="6.3.0" />
@@ -187,6 +187,8 @@
 
         <platform name="android">
             <preference name="ANDROID_SUPPORT_V13_VERSION" value="28.0.0" />
+            <preference name="AndroidInsecureFileModeEnabled" value="true" />
+            <preference name="AndroidPersistentFileLocation" value="Compatibility" />
             <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application/activity">
                 <application android:exported="true" />
             </edit-config>
@@ -205,10 +207,9 @@
                 <resource-file src="config/google-services.json" target="app/google-services.json" />
                 <hook type="after_prepare" src="scripts/before_build.js" />
             {{/permissions.push}}
+
+            <splash src="res/android/screen-xxxhdpi-portrait.png" />
         </platform>
     {{/androidEnabled}}
-
-    <splash src="res/android/screen-xxxhdpi-portrait.png" />
-
     {{{customConfiguration}}}
 </widget>

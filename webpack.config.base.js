@@ -25,8 +25,8 @@ module.exports = function () {
         },
         // The output of our build run
         output: {
-            path: path.resolve("build"),
-            filename: "www/js/bundle.js",
+            path: path.resolve("build/www"),
+            filename: "js/bundle.js",
         },
         devtool: "eval-source-map",
         module: {
@@ -84,25 +84,25 @@ module.exports = function () {
                     {
                         context: path.dirname(default_resources_path),
                         from: path.basename(default_resources_path),
-                        to: path.normalize("www/resources.zip"),
+                        to: path.normalize("resources.zip"),
                         noErrorOnMissing: true,
                     },
                     {
                         context: path.dirname(styling_path),
                         from: "**/*.css",
-                        to: path.normalize("www/css/[name].css"),
+                        to: path.normalize("css/[name].css"),
                         noErrorOnMissing: true,
                     },
                     ...utils.getBaseAndCustomPaths("src/www/images").map(function (dir) {
                         return {
                             context: dir,
                             from: "**/*",
-                            to: path.normalize("www/img"),
+                            to: path.normalize("img"),
                             noErrorOnMissing: true,
                         };
                     }),
                 ],
-            }),
+            })
         ],
     };
 };

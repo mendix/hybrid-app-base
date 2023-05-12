@@ -9,6 +9,7 @@ const ZipPlugin = require("zip-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlWebpackTagsPlugin = require("html-webpack-tags-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const FileManagerPlugin = require("filemanager-webpack-plugin");
 
 const base_config = require("./webpack.config.base");
 const package_config = require("./package.json");
@@ -47,42 +48,58 @@ module.exports = function (env) {
                     {
                         context: path.dirname(settings_template_path),
                         from: path.basename(settings_template_path),
-                        to: path.normalize("www/settings.json"),
+                        to: path.normalize("settings.json"),
                     },
                     {
                         context: path.dirname(styles_template_path),
                         from: path.basename(styles_template_path),
-                        to: path.normalize("www/css/index.css"),
+                        to: path.normalize("css/index.css"),
                     },
                 ],
             }),
             new HtmlWebpackPlugin({
                 // Generate the index.html
-                filename: "www/index.html",
+                filename: "index.html",
                 inject: "body",
                 template: index_template_path,
             }),
             new HtmlWebpackTagsPlugin({
                 // Copy styling files
-                links: ["www/css/index.css"],
+                links: ["css/index.css"],
                 ...{
                     ...(containsCssFiles("src/www/styles")
                         ? {
                               tags: [
                                   {
-                                      path: "www/css",
+                                      path: "css",
                                       glob: "**/*.css",
                                       globPath: path.normalize("src/www/styles"),
                                       type: "css",
                                   },
-                              ],
+                              ]
                           }
                         : undefined),
                 },
+                usePublicPath: true,
+                addPublicPath: (assetPath) => assetPath.replace("www/", ""),
+                publicPath: undefined,
                 append: false,
             }),
+            new FileManagerPlugin({
+                events: {
+                    onEnd: {
+                        move: [
+                            { source: "build/www/config", destination: "build/config" },
+                            { source: "build/www/config.xml", destination: "build/config.xml" },
+                            { source: "build/www/scripts", destination: "build/scripts" },
+                            { source: "build/www/res", destination: "build/res" },
+                            { source: "build/www/splash.png", destination: "build/splash.png" },
+                        ]
+                    }
+                }
+            }),
             new ZipPlugin({
-                path: "../dist",
+                path: "../../dist",
                 filename: util.format("appbase-%s", package_config.version),
             }),
         ],

@@ -29,6 +29,7 @@
     "copy-webpack-plugin": "^8.1.1",
     "core-js": "^3.10.1",
     "css-loader": "^5.2.1",
+    "filemanager-webpack-plugin": "^8.0.0",
     "html-webpack-include-assets-plugin": "^2.0.0",
     "html-webpack-plugin": "^5.3.1",
     "html-webpack-tags-plugin": "^3.0.1",
