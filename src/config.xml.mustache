@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<widget xmlns = "http://www.w3.org/ns/widgets"
-        xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "{{identifier}}"
-        version   = "{{version}}" 
-        xmlns:android="http://schemas.android.com/apk/res/android">
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:cdv="http://cordova.apache.org/ns/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="{{identifier}}"
+        version="{{version}}">
 
     <name>{{name}}</name>
-
     <description>{{description}}</description>
+    <content src="index.html" />
 
-    <engine name="android" spec="9.1.0" />
+    <engine name="android" spec="11.0.0" />
     <engine name="ios" spec="5.1.1" />
 
     <!-- allow assets to be loaded and open links in the app itself, see: http://phonegap.com/blog/2012/03/20/access-tags/ -->
@@ -30,15 +30,14 @@
     <plugin name="cordova-plugin-device-motion" source="npm" spec="2.0.1" />
     <plugin name="cordova-plugin-device-orientation" source="npm" spec="2.0.1" />
     <plugin name="cordova-plugin-dialogs" source="npm" spec="2.0.1" />
-    <plugin name="cordova-plugin-file" source="npm" spec="6.0.2" />
-    <plugin name="cordova-plugin-file-opener2" source="npm" spec="2.0.19" />
-    <plugin name="cordova-plugin-file-transfer" source="npm" spec="1.7.1" />
+    <plugin name="cordova-plugin-file" source="npm" spec="7.0.0" />
+    <plugin name="cordova-plugin-file-opener2" source="npm" spec="4.0.0" />
+    <plugin name="cordova-plugin-ns0m-file-transfer" source="npm" spec="2.0.0-7" />
     <plugin name="cordova-plugin-globalization" source="npm" spec="1.11.0" />
     <plugin name="cordova-plugin-inappbrowser" spec="https://github.com/mendix/cordova-plugin-inappbrowser.git" />
     <plugin name="cordova-plugin-network-information" source="npm" spec="2.0.1" />
     <plugin name="cordova-plugin-secure-storage" spec="https://github.com/mendix/cordova-plugin-secure-storage.git" />
     <plugin name="cordova-plugin-spinner" source="npm" spec="1.1.0" />
-    <plugin name="cordova-plugin-splashscreen" source="npm" spec="5.0.2" />
     <plugin name="cordova-plugin-statusbar" source="npm" spec="2.4.2" />
     <plugin name="cordova-plugin-vibration" source="npm" spec="3.1.0" />
     <plugin name="cordova-plugin-x-socialsharing" source="npm" version="5.6.4"/>
@@ -54,7 +53,7 @@
 
     {{#permissions.camera}}
         {{#permissions.photoLibrary}}
-            <plugin name="cordova-plugin-camera" source="npm" spec="4.0.3" />
+            <plugin name="cordova-plugin-camera" source="npm" spec="6.0.0" />
         {{/permissions.photoLibrary}}
     {{/permissions.camera}}
 
@@ -65,13 +64,13 @@
     {{#permissions.camera}}
         {{#permissions.photoLibrary}}
             {{#permissions.microphone}}
-                <plugin name="cordova-plugin-media-capture" source="npm" spec="3.0.2" />
+                <plugin name="cordova-plugin-media-capture" source="npm" spec="4.0.0" />
             {{/permissions.microphone}}
         {{/permissions.photoLibrary}}
     {{/permissions.camera}}
 
     {{#permissions.camera}}
-        <plugin name="phonegap-plugin-barcodescanner" source="npm" spec="8.0.0" />
+        <plugin name="phonegap-plugin-barcodescanner" source="npm" spec="8.1.0" />
     {{/permissions.camera}}
 
     {{#permissions.geoLocation}}
@@ -79,7 +78,7 @@
     {{/permissions.geoLocation}}
 
     {{#permissions.microphone}}
-        <plugin name="cordova-plugin-media" source="npm" spec="5.0.2" />
+        <plugin name="cordova-plugin-media" source="npm" spec="6.1.0" />
     {{/permissions.microphone}}
 
     {{#permissions.push}}
@@ -104,7 +103,7 @@
         <!-- Disable backup to iCloud on iOS. -->
         <preference name="BackupWebStorage" value="none" />
 
-        <plugin name="@mendix/cordova-plugin-wkwebview-engine" source="npm" spec="1.0.3-mx.1.2.3" />
+        <plugin name="@mendix/cordova-plugin-wkwebview-engine" source="npm" spec="1.0.3-mx.1.3.0" />
 
         <preference name="WKWebViewOnly" value="true" />
 
@@ -168,13 +167,12 @@
             <preference name="buildArchitecture" value="{{.}}" />
         {{/options.architecture}}
 
-        <plugin name="cordova-plugin-whitelist" source="npm" spec="1.3.3" />
         <plugin name="cordova-plugin-android-permissions" source="npm" version="0.11.0" />
 
-        <preference name="android-minSdkVersion" value="19" />
+        <preference name="android-minSdkVersion" value="21" />
 
         {{^crosswalkEnabled}}
-        <preference name="android-targetSdkVersion" value="30" />
+        <preference name="android-targetSdkVersion" value="32" />
         {{/crosswalkEnabled}}
 
         {{#crosswalkEnabled}}
@@ -189,6 +187,11 @@
 
         <platform name="android">
             <preference name="ANDROID_SUPPORT_V13_VERSION" value="28.0.0" />
+            <preference name="AndroidInsecureFileModeEnabled" value="true" />
+            <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+            <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application/activity">
+                <application android:exported="true" />
+            </edit-config>
 
             {{#androidImages}}
                 <!-- Icon definitions - for more details: http://developer.android.com/guide/topics/resources/providing-resources.html -->
@@ -204,10 +207,9 @@
                 <resource-file src="config/google-services.json" target="app/google-services.json" />
                 <hook type="after_prepare" src="scripts/before_build.js" />
             {{/permissions.push}}
+
+            <splash src="res/android/screen-xxxhdpi-portrait.png" />
         </platform>
     {{/androidEnabled}}
-
-    <splash src="res/android/screen-xxxhdpi-portrait.png" />
-
     {{{customConfiguration}}}
 </widget>

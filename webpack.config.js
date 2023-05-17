@@ -8,6 +8,7 @@ const ZipPlugin = require("zip-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlWebpackTagsPlugin = require("html-webpack-tags-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const FileManagerPlugin = require("filemanager-webpack-plugin");
 
 const Mustache = require("mustache");
 
@@ -43,7 +44,7 @@ module.exports = function (env) {
                     {
                         context: path.dirname(settings_template_path),
                         from: path.basename(settings_template_path),
-                        to: path.normalize("www/settings.json"),
+                        to: path.normalize("settings.json"),
                         transform: function (content) {
                             return Mustache.render(content.toString(), settings);
                         },
@@ -68,7 +69,7 @@ module.exports = function (env) {
                     {
                         context: path.dirname(styling_path),
                         from: "**/*.css.mustache",
-                        to: path.normalize("www/css/[name]"),
+                        to: path.normalize("css/[name]"),
                         transform: function (content) {
                             return Mustache.render(content.toString(), settings);
                         },
@@ -80,7 +81,7 @@ module.exports = function (env) {
                     {
                         context: path.dirname(styling_path),
                         from: "**/*.css",
-                        to: path.normalize("www/css/[name].css"),
+                        to: path.normalize("css/[name].css"),
                         noErrorOnMissing: true,
                     },
                 ],
@@ -89,23 +90,22 @@ module.exports = function (env) {
                 Object.assign(
                     {
                         // Generate the index.html
-                        filename: "www/index.html",
+                        filename: "index.html",
                         inject: "body",
                         template: index_template_path,
                     },
                     settings
-                )
+                ),
             ),
             new HtmlWebpackTagsPlugin({
                 // Copy styling files
-                // Copy styling files
-                links: ["www/css/index.css"],
+                links: ["css/index.css"],
                 ...{
                     ...(containsCssFiles("src/www/styles")
                         ? {
                               tags: [
                                   {
-                                      path: "www/css",
+                                      path: "css",
                                       glob: "**/*.css",
                                       globPath: path.normalize("src/www/styles"),
                                       type: "css",
@@ -114,6 +114,9 @@ module.exports = function (env) {
                           }
                         : undefined),
                 },
+                usePublicPath: true,
+                addPublicPath: (assetPath) => assetPath.replace("www/", ""),
+                publicPath: undefined,
                 append: false,
             }),
         ],
@@ -154,10 +157,23 @@ module.exports = function (env) {
 
     config = webpack_merge(config, {
         plugins: [
-            new ZipPlugin({
-                path: "../dist",
-                filename: utils.constructArchiveName(settings),
+            new FileManagerPlugin({
+                events: {
+                    onEnd: {
+                        move: [
+                            { source: "build/www/config", destination: "build/config" },
+                            { source: "build/www/config.xml", destination: "build/config.xml" },
+                            { source: "build/www/scripts", destination: "build/scripts" },
+                            { source: "build/www/res", destination: "build/res" },
+                            { source: "build/www/splash.png", destination: "build/splash.png" },
+                        ]
+                    }
+                }
             }),
+            new ZipPlugin({
+                path: "../../dist",
+                filename: utils.constructArchiveName(settings),
+            })
         ],
     });
 
