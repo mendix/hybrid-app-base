@@ -42,7 +42,7 @@ module.exports = function () {
                 },
                 {
                     test: /\.js$/,
-                    exclude: /node_modules\/(?!(@mendix\/mendix-hybrid-app-base)\/).*/,
+                    exclude: /node_modules/,
                     use: {
                         loader: "babel-loader",
                         options: {
