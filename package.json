@@ -23,7 +23,7 @@
     "@babel/core": "^7.21.4",
     "@babel/preset-env": "^7.13.15",
     "@zainulbr/i18n-webpack-plugin": "^2.0.3",
-    "android-versions": "^1.8.1",
+    "android-versions": "^1.8.2",
     "babel-loader": "^8.2.2",
     "clean-webpack-plugin": "^0.1.16",
     "copy-webpack-plugin": "^8.1.1",
