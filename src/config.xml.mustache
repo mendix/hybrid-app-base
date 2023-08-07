@@ -193,6 +193,10 @@
                 <application android:exported="true" />
             </edit-config>
 
+            <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
+                <application android:usesCleartextTraffic="true" android:requestLegacyExternalStorage="true"/>
+            </edit-config>
+
             {{#androidImages}}
                 <!-- Icon definitions - for more details: http://developer.android.com/guide/topics/resources/providing-resources.html -->
                 {{#density}}

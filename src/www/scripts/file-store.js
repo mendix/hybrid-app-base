@@ -3,11 +3,10 @@
 export default (function () {
     var remove = function (namespace, key) {
         return new Promise(function (resolve, reject) {
-            window.requestFileSystem(
-                LocalFileSystem.PERSISTENT,
-                0,
+            window.resolveLocalFileSystemURL(
+                cordova.file.dataDirectory,
                 function (fs) {
-                    fs.root.getFile(
+                    fs.getFile(
                         ".mx-token",
                         { create: false },
                         function (fileEntry) {
@@ -23,11 +22,10 @@ export default (function () {
 
     var set = function (namespace, key, value) {
         return new Promise(function (resolve, reject) {
-            window.requestFileSystem(
-                LocalFileSystem.PERSISTENT,
-                0,
+            window.resolveLocalFileSystemURL(
+                cordova.file.dataDirectory,
                 function (fs) {
-                    fs.root.getFile(
+                    fs.getFile(
                         ".mx-token",
                         { create: true, exclusive: false },
                         function (fileEntry) {
@@ -50,12 +48,11 @@ export default (function () {
 
     var get = function (namespace, key) {
         return new Promise(function (resolve, reject) {
-            window.requestFileSystem(
-                LocalFileSystem.PERSISTENT,
-                0,
+            window.resolveLocalFileSystemURL(
+                cordova.file.dataDirectory,
                 function (fs) {
                     console.log("file system open: " + fs.name);
-                    fs.root.getFile(
+                    fs.getFile(
                         ".mx-token",
                         { create: false },
                         function (fileEntry) {
