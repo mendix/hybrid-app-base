@@ -19,6 +19,8 @@ This project can be used to create a templated Phonegap Build package, as used w
     - Windows: install from [nodejs.org](https://nodejs.org/en/download/)
     - MacOS: use [Brew](https://brew.sh/) to install `Node.js`: `brew install node`
     - Linux, BSD, etc: install using the available package manager, e.g. on Debian: `sudo apt-get install node`
+- To customize the runtime behavior, include the following configuration: Set [com.mendix.core.SameSiteCookies](https://docs.mendix.com/refguide/custom-settings/#commendixcoreSameSiteCookies) to `None` in Studio Pro.
+- Deploy and test the application using HTTPS.
 
 ### Build
 
