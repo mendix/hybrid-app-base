@@ -297,10 +297,8 @@ export default (function () {
                     try {
                         let response = await fetch(url);
                         let blob = await response.blob();
-                        let uri = await cordova.plugins.saveDialog.saveFile(blob, fileName);
-                        console.info("The file has been successfully saved to", uri);
+                        await cordova.plugins.saveDialog.saveFile(blob, fileName);
                     } catch (e) {
-                        console.error(e);
                         window.mx.ui.exception(__("Could not download file"));
                     }
                 };
