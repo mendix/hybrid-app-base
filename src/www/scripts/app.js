@@ -293,16 +293,16 @@ export default (function () {
             window.dojoConfig.offline = enableOffline;
 
             if (cordova.platformId === "android") {
-                window.dojoConfig.ui.openUrlFn = function (url, fileName, windowName) {
-                    download(url, cordova.file.externalCacheDirectory + fileName, false, {}, null)
-                        .then(function (fe) {
-                            fe.file(function (file) {
-                                cordova.plugins.fileOpener2.open(fe.toInternalURL(), file.type);
-                            });
-                        })
-                        .catch(function (e) {
-                            window.mx.ui.exception(__("Could not download file"));
-                        });
+                window.dojoConfig.ui.openUrlFn = async function (url, fileName, windowName) {
+                    try {
+                        let response = await fetch(url);
+                        let blob = await response.blob();
+                        let uri = await cordova.plugins.saveDialog.saveFile(blob, fileName);
+                        console.info("The file has been successfully saved to", uri);
+                    } catch (e) {
+                        console.error(e);
+                        window.mx.ui.exception(__("Could not download file"));
+                    }
                 };
             }
 
