@@ -10,7 +10,7 @@
     <content src="index.html" />
 
     <engine name="android" spec="12.0.1" />
-    <engine name="ios" spec="5.1.1" />
+    <engine name="ios" spec="7.0.1" />
 
     <!-- allow assets to be loaded and open links in the app itself, see: http://phonegap.com/blog/2012/03/20/access-tags/ -->
     <!-- Issue 204079: Allow retrieval of any resource. Custom widgets can point to anything. -->
@@ -82,7 +82,7 @@
     {{/permissions.microphone}}
 
     {{#permissions.push}}
-        <plugin name="phonegap-plugin-push" source="npm" spec="2.3.0" />
+        <plugin name="@havesource/cordova-plugin-push" source="npm" spec="4.0.0" />
     {{/permissions.push}}
 
     {{#iosEnabled}}
@@ -103,8 +103,6 @@
         <!-- Disable backup to iCloud on iOS. -->
         <preference name="BackupWebStorage" value="none" />
 
-        <plugin name="@mendix/cordova-plugin-wkwebview-engine" source="npm" spec="1.0.3-mx.1.4.0" />
-
         <preference name="WKWebViewOnly" value="true" />
 
         <!-- Enable WKWebView on iOS -->
@@ -112,9 +110,15 @@
             <param name="ios-package" value="CDVWKWebViewEngine" />
         </feature>
 
+        <plugin name="cordova-plugin-webview-proxy" spec="https://github.com/mendix/cordova-plugin-webview-proxy.git" />
+
         <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
 
+        <plugin name="@ahovakimyan/cordova-plugin-wkwebviewxhrfix" source="npm" spec="1.0.2" />
+
         <preference name="KeyboardDisplayRequiresUserAction" value="false" />
+        <preference name="scheme" value="https" />
+        <preference name="hostname" value="localhost" />
 
         <platform name="ios">
             {{#iosImages}}

@@ -6,6 +6,7 @@ import * as PinView from "./pinView";
 import SecureStore from "./secure-store";
 import FileStore from "./file-store";
 import LocalStore from "./local-store";
+import convertProxyUrl from "./convert-url";
 
 export default (function () {
     var defaultConfig = {
@@ -33,7 +34,7 @@ export default (function () {
         var xhr = new XMLHttpRequest(),
             header;
 
-        xhr.open(params.method, url);
+        xhr.open(params.method, convertProxyUrl(url));
 
         if (params.onLoad) {
             xhr.onreadystatechange = function () {
@@ -149,8 +150,8 @@ export default (function () {
     var _startup = function (config, url, appUrl, enableOffline, requirePin) {
         return new Promise(async function (resolve, reject) {
             window.dojoConfig = {
-                appbase: url,
-                remotebase: appUrl,
+                appbase: convertProxyUrl(url),
+                remotebase: convertProxyUrl(url),
                 baseUrl: url + "mxclientsystem/dojo/",
                 async: true,
                 cacheBust: config.cachebust,
@@ -295,7 +296,7 @@ export default (function () {
             if (cordova.platformId === "android") {
                 window.dojoConfig.ui.openUrlFn = async function (url, fileName, windowName) {
                     try {
-                        let response = await fetch(url);
+                        let response = await fetch(convertProxyUrl(url));
                         let blob = await response.blob();
                         await cordova.plugins.saveDialog.saveFile(blob, fileName);
                     } catch (e) {
