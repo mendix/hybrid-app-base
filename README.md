@@ -21,6 +21,7 @@ This project can be used to create a templated Phonegap Build package, as used w
     - Linux, BSD, etc: install using the available package manager, e.g. on Debian: `sudo apt-get install node`
 - To customize the runtime behavior, include the following configuration: Set [com.mendix.core.SameSiteCookies](https://docs.mendix.com/refguide/custom-settings/#commendixcoreSameSiteCookies) to `None` in Studio Pro.
 - Deploy and test the application using HTTPS.
+- The scheme configuration in `config.xml` should not be changed to any value other than `app` for iOS.
 
 ### Build
 
