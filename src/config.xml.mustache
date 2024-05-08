@@ -117,10 +117,11 @@
         <plugin name="@ahovakimyan/cordova-plugin-wkwebviewxhrfix" source="npm" spec="1.0.2" />
 
         <preference name="KeyboardDisplayRequiresUserAction" value="false" />
-        <preference name="scheme" value="https" />
-        <preference name="hostname" value="localhost" />
 
         <platform name="ios">
+            <preference name="scheme" value="app" />
+            <preference name="hostname" value="localhost" />
+
             {{#iosImages}}
                 <{{{tag}}} src="{{{filename}}}" width="{{{width}}}" height="{{{height}}}" />
             {{/iosImages}}
