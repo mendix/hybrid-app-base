@@ -340,7 +340,8 @@ export default (function () {
             }
 
             // Emit an event with the configuration ready for use, including the unmodified remote URL for SSO functionality.
-            await emitter.emit("onConfigReady", { ...window.dojoConfig, nonProxiedRemoteUrl: url });
+            // Also, Make sure remote URL always ends with a /.
+            await emitter.emit("onConfigReady", { ...window.dojoConfig, unmodifiedRemoteUrl: url.replace(/\/?$/, "/") });
 
             // Because loading all app scripts takes quite a while we do that first and defer removing our
             // own styles and scripts until mx exists.  We need to hold on to our own styles as long as we
