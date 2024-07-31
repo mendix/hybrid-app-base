@@ -9,7 +9,7 @@
     <description>{{description}}</description>
     <content src="index.html" />
 
-    <engine name="android" spec="12.0.1" />
+    <engine name="android" spec="13.0.0" />
     <engine name="ios" spec="7.0.1" />
 
     <!-- allow assets to be loaded and open links in the app itself, see: http://phonegap.com/blog/2012/03/20/access-tags/ -->
@@ -23,30 +23,30 @@
     <plugin name="com.darktalker.cordova.screenshot" source="npm" spec="0.1.6" />
     <plugin name="com.telerik.plugins.nativepagetransitions" spec="https://github.com/mendix/NativePageTransitions.git" />
     <plugin name="cordova-plugin-actionsheet" source="npm" spec="2.3.3" />
-    <plugin name="cordova-plugin-app-version" source="npm" spec="0.1.9" />
+    <plugin name="cordova-plugin-app-version" source="npm" spec="0.1.14" />
     <plugin name="cordova-plugin-battery-status" source="npm" spec="2.0.2" />
     <plugin name="cordova-plugin-cookieemperor" spec="https://github.com/rtk/cordova-cookie-emperor.git" />
     <plugin name="cordova-plugin-device" source="npm" spec="2.0.2" />
     <plugin name="cordova-plugin-device-motion" source="npm" spec="2.0.1" />
     <plugin name="cordova-plugin-device-orientation" source="npm" spec="2.0.1" />
     <plugin name="cordova-plugin-dialogs" source="npm" spec="2.0.1" />
-    <plugin name="cordova-plugin-file" source="npm" spec="8.0.0" />
-    <plugin name="cordova-plugin-save-dialog" source="npm" spec="2.0.0" />
+    <plugin name="cordova-plugin-file" source="npm" spec="8.1.0" />
+    <plugin name="cordova-plugin-save-dialog" source="npm" spec="2.0.1" />
     <plugin name="cordova-plugin-ns0m-file-transfer" source="npm" spec="2.0.0-7" />
     <plugin name="cordova-plugin-globalization" source="npm" spec="1.11.0" />
     <plugin name="cordova-plugin-inappbrowser" spec="https://github.com/mendix/cordova-plugin-inappbrowser.git" />
-    <plugin name="cordova-plugin-network-information" source="npm" spec="2.0.1" />
+    <plugin name="cordova-plugin-network-information" source="npm" spec="3.0.0" />
     <plugin name="cordova-plugin-secure-storage" spec="https://github.com/mendix/cordova-plugin-secure-storage.git" />
     <plugin name="cordova-plugin-spinner" source="npm" spec="1.1.0" />
     <plugin name="cordova-plugin-statusbar" source="npm" spec="2.4.2" />
     <plugin name="cordova-plugin-vibration" source="npm" spec="3.1.0" />
-    <plugin name="cordova-plugin-x-socialsharing" source="npm" version="5.6.4"/>
+    <plugin name="cordova-plugin-x-socialsharing" source="npm" version="6.0.4"/>
     <plugin name="cordova-plugin-zip" source="npm" spec="3.1.0" />
     <plugin name="cordova-sqlite-storage" source="npm" spec="6.1.0" />
     <plugin name="@mendix/uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm" spec="4.2.2-mx.1.0.0" />
 
     {{#permissions.calendar}}
-        <plugin name="cordova-plugin-calendar" source="npm" spec="5.1.2">
+        <plugin name="cordova-plugin-calendar" source="npm" spec="5.1.6">
             <param name="CALENDAR_USAGE_DESCRIPTION" value="This app needs to access your calendar" />
         </plugin>
     {{/permissions.calendar}}
@@ -178,7 +178,7 @@
         <preference name="android-minSdkVersion" value="24" />
 
         {{^crosswalkEnabled}}
-        <preference name="android-targetSdkVersion" value="33" />
+        <preference name="android-targetSdkVersion" value="34" />
         {{/crosswalkEnabled}}
 
         {{#crosswalkEnabled}}

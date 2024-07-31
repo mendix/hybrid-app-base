@@ -15,7 +15,7 @@ This project can be used to create a templated Phonegap Build package, as used w
 
 ### Prerequisites
 
-- Recent `Node.js`. This code was tested with version 18. You can check by running `node -v`.
+- Recent `Node.js`. This code was tested with version 20. You can check by running `node -v`.
     - Windows: install from [nodejs.org](https://nodejs.org/en/download/)
     - MacOS: use [Brew](https://brew.sh/) to install `Node.js`: `brew install node`
     - Linux, BSD, etc: install using the available package manager, e.g. on Debian: `sudo apt-get install node`
