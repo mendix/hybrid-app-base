@@ -25,7 +25,7 @@
     "@zainulbr/i18n-webpack-plugin": "^2.0.3",
     "android-versions": "^1.8.1",
     "babel-loader": "^8.2.2",
-    "clean-webpack-plugin": "^0.1.16",
+    "clean-webpack-plugin": "^2.0.0",
     "copy-webpack-plugin": "^8.1.1",
     "core-js": "^3.10.1",
     "css-loader": "^5.2.1",
