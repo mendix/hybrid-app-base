@@ -26,7 +26,7 @@
     "android-versions": "^1.8.1",
     "babel-loader": "^8.2.2",
     "clean-webpack-plugin": "^0.1.16",
-    "copy-webpack-plugin": "^8.1.1",
+    "copy-webpack-plugin": "^9.0.1",
     "core-js": "^3.10.1",
     "css-loader": "^5.2.1",
     "filemanager-webpack-plugin": "^8.0.0",
