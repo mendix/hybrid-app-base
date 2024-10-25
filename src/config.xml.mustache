@@ -10,7 +10,7 @@
     <content src="index.html" />
 
     <engine name="android" spec="13.0.0" />
-    <engine name="ios" spec="7.0.1" />
+    <engine name="ios" spec="7.1.1" />
 
     <!-- allow assets to be loaded and open links in the app itself, see: http://phonegap.com/blog/2012/03/20/access-tags/ -->
     <!-- Issue 204079: Allow retrieval of any resource. Custom widgets can point to anything. -->
@@ -121,6 +121,40 @@
         <platform name="ios">
             <preference name="scheme" value="app" />
             <preference name="hostname" value="localhost" />
+            <privacy-manifest>
+                <key>NSPrivacyCollectedDataTypes</key>
+                <array>
+                </array>
+                <key>NSPrivacyAccessedAPITypes</key>
+                <array>
+                  <dict>
+                    <key>NSPrivacyAccessedAPIType</key>
+                    <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+                    <key>NSPrivacyAccessedAPITypeReasons</key>
+                    <array>
+                      <string>C617.1</string>
+                    </array>
+                  </dict>
+                  <dict>
+                    <key>NSPrivacyAccessedAPIType</key>
+                    <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+                    <key>NSPrivacyAccessedAPITypeReasons</key>
+                    <array>
+                      <string>CA92.1</string>
+                    </array>
+                  </dict>
+                  <dict>
+			        <key>NSPrivacyAccessedAPIType</key>
+			        <string>NSPrivacyAccessedAPICategoryDiskSpace</string>
+			        <key>NSPrivacyAccessedAPITypeReasons</key>
+			        <array>
+			        	<string>85F4.1</string>
+			        </array>
+		          </dict>
+                </array>
+                <key>NSPrivacyTracking</key>
+                <false/>
+            </privacy-manifest>
             <preference name="PreferredContentMode" value="mobile" />
 
             {{#iosImages}}
