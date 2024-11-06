@@ -151,7 +151,7 @@ export default (function () {
         return new Promise(async function (resolve, reject) {
             window.dojoConfig = {
                 appbase: convertProxyUrl(url),
-                remotebase: convertProxyUrl(url),
+                remotebase: convertProxyUrl(appUrl),
                 baseUrl: url + "mxclientsystem/dojo/",
                 async: true,
                 cacheBust: config.cachebust,
