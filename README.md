@@ -72,3 +72,10 @@ We unpinned the version of the Android support v13 library.
 - [Forked library](https://github.com/mendix/cordova-plugin-secure-storage)
 
 We added support for Android 10
+
+### cordova-plugin-n0sm-file-transfer
+
+- [Original repository](https://github.com/mvinayprasad/cordova-plugin-ns0m-file-transfer)
+- [Forked library](https://github.com/mendix/cordova-plugin-ns0m-file-transfer)
+
+We have fixed nested path creation problem for Android.
